@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Courses | LearnHub</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .page-header {
+            margin-top: 80px;
+            padding: 3rem 5%;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+        }
+
+        .courses-container {
+            padding: 3rem 5%;
+            background-color: var(--gray-100);
+            min-height: 70vh;
+        }
+
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-dropdown {
+            padding: 0.6rem 1.2rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            background: white;
+            min-width: 150px;
+            cursor: pointer;
+        }
+
+        .search-bar {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 3rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            background: white;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-500);
+        }
+
+        .course-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--gray-200);
+        }
+
+        @media (min-width: 768px) {
+            .course-card {
+                flex-direction: row;
+                align-items: stretch;
+            }
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .course-image {
+            overflow: hidden;
+            width: 100%;
+            height: 200px;
+        }
+
+        @media (min-width: 768px) {
+            .course-image {
+                width: 250px;
+                height: auto;
+            }
+        }
+
+        .course-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .course-card:hover .course-image img {
+            transform: scale(1.05);
+        }
+
+        .course-details {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .course-details h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--gray-800);
+        }
+
+        .course-details p {
+            color: var(--gray-600);
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-container {
+            margin-bottom: 1.5rem;
+            margin-top: auto;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        .course-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            color: var(--gray-600);
+            font-size: 0.875rem;
+        }
+
+        .course-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .continue-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius);
+            background: var(--primary-color);
+            color: white;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            align-self: flex-start;
+        }
+
+        .continue-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .empty-courses {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+        }
+
+        .empty-courses i {
+            font-size: 3rem;
+            color: var(--gray-400);
+            margin-bottom: 1rem;
+        }
+
+        .empty-courses h2 {
+            font-size: 1.5rem;
+            color: var(--gray-700);
+            margin-bottom: 1rem;
+        }
+
+        .empty-courses p {
+            color: var(--gray-600);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-heading {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="welcome2.html" class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            LearnHub
+        </a>
+        <nav>
+            <a href="welcome2.html"><i class="fas fa-home"></i> Home</a>
+            <a href="mycourses.html" class="active"><i class="fas fa-book-open"></i> My Courses</a>
+            <a href="dashboard.html"><i class="fas fa-chart-bar"></i> Dashboard</a>
+            <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+        </nav>
+    </header>
+
+    <div class="page-header">
+        <h1>My Learning Journey</h1>
+        <p>Track your progress and continue your education with our curated courses</p>
+    </div>
+
+    <div class="courses-container">
+        <div class="filter-bar">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search your courses...">
+            </div>
+            <select class="filter-dropdown">
+                <option>All Courses</option>
+                <option>In Progress</option>
+                <option>Completed</option>
+                <option>Not Started</option>
+            </select>
+            <select class="filter-dropdown">
+                <option>Sort By: Recent</option>
+                <option>Sort By: Progress</option>
+                <option>Sort By: Title</option>
+            </select>
+        </div>
+
+        <h2 class="section-heading">
+            <i class="fas fa-play-circle"></i> Active Courses <span class="badge">2</span>
+        </h2>
+        
+        <div class="course-list">
+            <div class="course-card animate-fade-in">
+                <div class="course-image">
+                    <img src="https://img.freepik.com/free-vector/web-development-programmer-engineering-coding-website-augmented-reality-interface-screens-developer-project-engineer-programming-software-application-design-cartoon-illustration_107791-3863.jpg" alt="Web Development">
+                </div>
+                <div class="course-details">
+                    <h2>Web Development Fundamentals</h2>
+                    <p>Currently learning: <strong>CSS Flexbox & Grid Layouts</strong></p>
+                    <div class="course-meta">
+                        <div class="course-meta-item">
+                            <i class="fas fa-clock"></i> 12 hours left
+                        </div>
+                        <div class="course-meta-item">
+                            <i class="fas fa-calendar-alt"></i> Updated 2 days ago
+                        </div>
+                        <div class="course-meta-item">
+                            <i class="fas fa-signal"></i> Beginner
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <span>Your progress</span>
+                            <span>70%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 70%"></div>
+                        </div>
+                    </div>
+                    <a href="#" class="continue-btn">
+                        <i class="fas fa-play-circle"></i> Continue Learning
+                    </a>
+                </div>
+            </div>
+
+            <div class="course-card animate-fade-in">
+                <div class="course-image">
+                    <img src="https://img.freepik.com/free-vector/digital-marketing-team-with-laptops-light-bulb-marketing-team-metrics-marketing-team-lead-responsibilities-concept_335657-258.jpg" alt="Digital Marketing">
+                </div>
+                <div class="course-details">
+                    <h2>Digital Marketing Masterclass</h2>
+                    <p>Currently learning: <strong>Social Media Strategy Development</strong></p>
+                    <div class="course-meta">
+                        <div class="course-meta-item">
+                            <i class="fas fa-clock"></i> 18 hours left
+                        </div>
+                        <div class="course-meta-item">
+                            <i class="fas fa-calendar-alt"></i> Updated yesterday
+                        </div>
+                        <div class="course-meta-item">
+                            <i class="fas fa-signal"></i> Intermediate
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <span>Your progress</span>
+                            <span>45%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 45%"></div>
+                        </div>
+                    </div>
+                    <a href="#" class="continue-btn">
+                        <i class="fas fa-play-circle"></i> Continue Learning
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-heading" style="margin-top: 3rem;">
+            <i class="fas fa-bookmark"></i> Saved For Later <span class="badge">1</span>
+        </h2>
+
+        <div class="course-list">
+            <div class="course-card animate-fade-in">
+                <div class="course-image">
+                    <img src="https://img.freepik.com/free-vector/data-extraction-concept-illustration_114360-4876.jpg" alt="Data Science">
+                </div>
+                <div class="course-details">
+                    <h2>Data Science Essentials</h2>
+                    <p>Learn Python, statistics, data visualization, and machine learning fundamentals</p>
+                    <div class="course-meta">
+                        <div class="course-meta-item">
+                            <i class="fas fa-clock"></i> 36 hours total
+                        </div>
+                        <div class="course-meta-item">
+                            <i class="fas fa-user-friends"></i> 12,845 students
+                        </div>
+                        <div class="course-meta-item">
+                            <i class="fas fa-signal"></i> Advanced
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <span>Your progress</span>
+                            <span>0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <a href="#" class="continue-btn">
+                        <i class="fas fa-play-circle"></i> Start Learning
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add this script to enhance UI interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add active class to current page in navigation
+            const currentLocation = window.location.pathname;
+            const navLinks = document.querySelectorAll('nav a');
+            
+            navLinks.forEach(link => {
+                if(link.getAttribute('href') === currentLocation.split('/').pop()) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

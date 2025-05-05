@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnHub - Personalized Learning</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #3366ED;
+            --secondary-color: #4376f8;
+            --light-bg: #f5f5f5;
+        }
+
+        header {
+            background: white;
+            padding: 1rem 5%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        nav a {
+            margin-left: 2rem;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .hero {
+            margin-top: 80px;
+            padding: 6rem 5%;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                url('https://img.freepik.com/free-photo/young-student-woman-wearing-denim-jacket-using-laptop-computer-sitting-grass-campus-university_231208-12200.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .page-header {
+            margin-top: 80px;
+            padding: 4rem 5%;
+            background: #3366ED;
+            color: white;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            max-width: 800px;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .categories {
+            padding: 5rem 5%;
+            background-color: white;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            color: var(--gray-600);
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 3rem;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .category-card {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            z-index: 1;
+            border: 1px solid var(--gray-200);
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.05;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .category-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .category-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .category-card h3 {
+            margin-bottom: 1rem;
+            color: var(--gray-800);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .category-card p {
+            color: var(--gray-600);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-card .btn {
+            margin-top: auto;
+        }
+
+        .category-card:nth-child(1)::before {
+            background-image: url('https://img.freepik.com/free-vector/programming-concept-illustration_114360-1351.jpg');
+        }
+
+        .category-card:nth-child(2)::before {
+            background-image: url('https://img.freepik.com/free-vector/business-team-putting-together-jigsaw-puzzle-isolated-flat-illustration_74855-11070.jpg');
+        }
+
+        .category-card:nth-child(3)::before {
+            background-image: url('https://img.freepik.com/free-vector/gradient-ui-ux-background_23-2149024929.jpg');
+        }
+
+        .courses {
+            padding: 5rem 5%;
+            background-color: var(--gray-100);
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--gray-200);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .course-image {
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .course-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .course-card:hover .course-image img {
+            transform: scale(1.05);
+        }
+
+        .course-content {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .course-content h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--gray-800);
+        }
+
+        .course-content p {
+            color: var(--gray-600);
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-container {
+            margin-top: auto;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        .difficulty {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: var(--gray-100);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--gray-700);
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+
+        footer {
+            background: var(--gray-800);
+            color: white;
+            padding: 4rem 5% 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-column h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-column ul li a {
+            color: var(--gray-400);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-column ul li a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            padding-top: 2rem;
+            border-top: 1px solid var(--gray-700);
+            text-align: center;
+            color: var(--gray-400);
+            font-size: 0.875rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-links a {
+            color: var(--gray-400);
+            font-size: 1.25rem;
+            transition: color 0.2s ease;
+        }
+
+        .social-links a:hover {
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .section-title {
+                font-size: 1.75rem;
+            }
+        }
+
+        /* Login button in header */
+        .login-button {
+            padding: 0.5rem 1.2rem;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .login-button:hover {
+            box-shadow: var(--shadow-md);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="welcome2.html" class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            LearnHub
+        </a>
+        <nav>
+            <a href="welcome2.html"><i class="fas fa-home"></i> Home</a>
+            <a href="mycourses.html"><i class="fas fa-book-open"></i> My Courses</a>
+            <a href="dashboard.html"><i class="fas fa-chart-bar"></i> Dashboard</a>
+            <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+            <a href="login.html" class="btn btn-primary login-button"><i class="fas fa-sign-in-alt"></i> Login</a>
+        </nav>
+    </header>
+
+    <section class="hero animate-fade-in">
+        <h1>Transform Your Future With Expert-Led Learning</h1>
+        <p>Discover courses taught by industry experts and take your skills to the next level</p>
+        <a href="mycourses.html" class="btn btn-primary">
+            <i class="fas fa-play-circle"></i> Start Learning
+        </a>
+    </section>
+
+    <section class="categories">
+        <h2 class="section-title">Explore Categories</h2>
+        <p class="section-subtitle">Browse our diverse range of courses in today's most in-demand skills</p>
+        <div class="categories-grid">
+            <div class="category-card animate-fade-in">
+                <i class="fas fa-laptop-code"></i>
+                <h3>Technology</h3>
+                <p>Master the latest programming languages, web development frameworks, and tech skills for the digital era</p>
+                <a href="technology.html" class="btn btn-primary">Explore Technology</a>
+            </div>
+            <div class="category-card animate-fade-in">
+                <i class="fas fa-chart-line"></i>
+                <h3>Business</h3>
+                <p>Develop essential business skills in marketing, finance, management, and entrepreneurship</p>
+                <a href="business.html" class="btn btn-primary">Explore Business</a>
+            </div>
+            <div class="category-card animate-fade-in">
+                <i class="fas fa-palette"></i>
+                <h3>Design</h3>
+                <p>Unleash your creativity with courses in UI/UX design, graphic design, and creative thinking</p>
+                <a href="design.html" class="btn btn-primary">Explore Design</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="courses">
+        <h2 class="section-title">Recommended For You</h2>
+        <p class="section-subtitle">Based on your interests and learning history</p>
+        <div class="course-grid">
+            <div class="course-card animate-fade-in">
+                <div class="course-image">
+                    <img src="https://img.freepik.com/free-vector/web-development-programmer-engineering-coding-website-augmented-reality-interface-screens-developer-project-engineer-programming-software-application-design-cartoon-illustration_107791-3863.jpg" alt="Web Development">
+                </div>
+                <div class="course-content">
+                    <h3>Web Development Fundamentals</h3>
+                    <p>Learn HTML, CSS, and JavaScript to build modern responsive websites</p>
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <span>Progress</span>
+                            <span>70%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 70%"></div>
+                        </div>
+                    </div>
+                    <span class="difficulty">Beginner</span>
+                </div>
+            </div>
+            <div class="course-card animate-fade-in">
+                <div class="course-image">
+                    <img src="https://img.freepik.com/free-vector/digital-marketing-team-with-laptops-light-bulb-marketing-team-metrics-marketing-team-lead-responsibilities-concept_335657-258.jpg" alt="Digital Marketing">
+                </div>
+                <div class="course-content">
+                    <h3>Digital Marketing Masterclass</h3>
+                    <p>Master social media, SEO, email marketing, and PPC advertising strategies</p>
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <span>Progress</span>
+                            <span>45%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 45%"></div>
+                        </div>
+                    </div>
+                    <span class="difficulty">Intermediate</span>
+                </div>
+            </div>
+            <div class="course-card animate-fade-in">
+                <div class="course-image">
+                    <img src="https://img.freepik.com/free-vector/data-extraction-concept-illustration_114360-4876.jpg" alt="Data Science">
+                </div>
+                <div class="course-content">
+                    <h3>Data Science Essentials</h3>
+                    <p>Learn Python, statistics, data visualization, and machine learning fundamentals</p>
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <span>Progress</span>
+                            <span>0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <span class="difficulty">Advanced</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>LearnHub</h3>
+                <p>Empowering learners worldwide with expert-led, accessible education for personal and professional growth.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h3>Learn</h3>
+                <ul>
+                    <li><a href="#">Technology</a></li>
+                    <li><a href="#">Business</a></li>
+                    <li><a href="#">Design</a></li>
+                    <li><a href="#">Personal Development</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Success Stories</a></li>
+                    <li><a href="#">Teaching Center</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Press</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2023 LearnHub. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
