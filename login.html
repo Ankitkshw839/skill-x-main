@@ -440,6 +440,7 @@
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
       import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
+      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyCGV8-zgiG0z04OTU-bK7fbOWPLT4X6TFY",
@@ -454,6 +455,25 @@
       const app = initializeApp(firebaseConfig);
       const analytics = getAnalytics(app);
       const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      async function checkOnboardingStatus(user) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        return userDoc.exists() && userDoc.data().onboardingCompleted;
+      }
+
+      async function handleLoginSuccess(user) {
+        const successOverlay = document.getElementById('successOverlay');
+        successOverlay.classList.add('show');
+        
+        // Check if user has completed onboarding
+        const hasCompletedOnboarding = await checkOnboardingStatus(user);
+        
+        // Wait for animation to complete before redirecting
+        setTimeout(() => {
+          window.location.href = hasCompletedOnboarding ? 'welcome2.html' : 'onboarding.html';
+        }, 1200);
+      }
 
       // Email/Password login
       const loginForm = document.getElementById('loginForm');
@@ -472,13 +492,7 @@
 
         try {
           const userCredential = await signInWithEmailAndPassword(auth, email, password);
-          const successOverlay = document.getElementById('successOverlay');
-          successOverlay.classList.add('show');
-          
-          // Wait for animation to complete before redirecting
-          setTimeout(() => {
-            window.location.href = 'welcome2.html';
-          }, 1200);
+          await handleLoginSuccess(userCredential.user);
         } catch (error) {
           if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
             passwordError.textContent = 'Invalid email or password';
@@ -500,14 +514,7 @@
           });
           try {
             const result = await signInWithPopup(auth, provider);
-            // Show success animation
-            const successOverlay = document.getElementById('successOverlay');
-            successOverlay.classList.add('show');
-            
-            // Wait for animation to complete before redirecting
-            setTimeout(() => {
-            window.location.href = 'welcome2.html';
-            }, 1200);
+            await handleLoginSuccess(result.user);
           } catch (error) {
             if (error.code === 'auth/popup-closed-by-user') {
               // User closed the popup, no need to show error
@@ -529,14 +536,7 @@
           });
           try {
             const result = await signInWithPopup(auth, provider);
-            // Show success animation
-            const successOverlay = document.getElementById('successOverlay');
-            successOverlay.classList.add('show');
-            
-            // Wait for animation to complete before redirecting
-            setTimeout(() => {
-            window.location.href = 'welcome2.html';
-            }, 1200);
+            await handleLoginSuccess(result.user);
           } catch (error) {
             if (error.code === 'auth/popup-closed-by-user') {
               // User closed the popup, no need to show error
