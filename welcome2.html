@@ -759,33 +759,36 @@
     </footer>
 
     <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBSOqsVon1gII-dK50qKc-xlsDFXFJWoog",
-      authDomain: "simplexify-c7279.firebaseapp.com",
-      projectId: "simplexify-c7279",
-      storageBucket: "simplexify-c7279.firebasestorage.app",
-      messagingSenderId: "743003569839",
-      appId: "1:743003569839:web:c215d850484bd0b0719e5a"
-    };
+      const firebaseConfig = {
+        apiKey: "AIzaSyCGV8-zgiG0z04OTU-bK7fbOWPLT4X6TFY",
+        authDomain: "simplexify.firebaseapp.com",
+        projectId: "simplexify",
+        storageBucket: "simplexify.firebasestorage.app",
+        messagingSenderId: "809236435012",
+        appId: "1:809236435012:web:18ade7317dda448c716c11",
+        measurementId: "G-H8667PT04T"
+      };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const auth = getAuth(app);
 
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        try {
-          await signOut(auth);
-          window.location.href = 'index.html';
-        } catch (error) {
-          alert('Logout failed: ' + error.message);
-        }
-      });
-    }
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          try {
+            await signOut(auth);
+            window.location.href = 'index.html';
+          } catch (error) {
+            alert('Logout failed: ' + error.message);
+          }
+        });
+      }
     </script>
 </body>
 </html>

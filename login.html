@@ -437,28 +437,22 @@
     </script>
 
     <script type="module">
-      // Import the functions you need from the SDKs you need
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-      import {
-        getAuth,
-        signInWithEmailAndPassword,
-        signInWithPopup,
-        GoogleAuthProvider,
-        FacebookAuthProvider
-      } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+      import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
 
-      // Your web app's Firebase configuration
       const firebaseConfig = {
-        apiKey: "AIzaSyBSOqsVon1gII-dK50qKc-xlsDFXFJWoog",
-        authDomain: "simplexify-c7279.firebaseapp.com",
-        projectId: "simplexify-c7279",
-        storageBucket: "simplexify-c7279.firebasestorage.app",
-        messagingSenderId: "743003569839",
-        appId: "1:743003569839:web:c215d850484bd0b0719e5a"
+        apiKey: "AIzaSyCGV8-zgiG0z04OTU-bK7fbOWPLT4X6TFY",
+        authDomain: "simplexify.firebaseapp.com",
+        projectId: "simplexify",
+        storageBucket: "simplexify.firebasestorage.app",
+        messagingSenderId: "809236435012",
+        appId: "1:809236435012:web:18ade7317dda448c716c11",
+        measurementId: "G-H8667PT04T"
       };
 
-      // Initialize Firebase
       const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
       const auth = getAuth(app);
 
       // Email/Password login
@@ -501,12 +495,25 @@
       if (googleBtn) {
         googleBtn.addEventListener('click', async () => {
           const provider = new GoogleAuthProvider();
+          provider.setCustomParameters({
+            prompt: 'select_account'
+          });
           try {
             const result = await signInWithPopup(auth, provider);
-            // User info: result.user
-            alert('Google login successful! Welcome, ' + result.user.displayName);
-            window.location.href = 'welcome2.html';
+            // Show success animation
+            const successOverlay = document.getElementById('successOverlay');
+            successOverlay.classList.add('show');
+            
+            // Wait for animation to complete before redirecting
+            setTimeout(() => {
+              window.location.href = 'welcome2.html';
+            }, 1200);
           } catch (error) {
+            if (error.code === 'auth/popup-closed-by-user') {
+              // User closed the popup, no need to show error
+              return;
+            }
+            console.error('Google login error:', error);
             alert('Google login failed: ' + error.message);
           }
         });
@@ -517,12 +524,25 @@
       if (facebookBtn) {
         facebookBtn.addEventListener('click', async () => {
           const provider = new FacebookAuthProvider();
+          provider.setCustomParameters({
+            'display': 'popup'
+          });
           try {
             const result = await signInWithPopup(auth, provider);
-            // User info: result.user
-            alert('Facebook login successful! Welcome, ' + result.user.displayName);
-            window.location.href = 'welcome2.html';
+            // Show success animation
+            const successOverlay = document.getElementById('successOverlay');
+            successOverlay.classList.add('show');
+            
+            // Wait for animation to complete before redirecting
+            setTimeout(() => {
+              window.location.href = 'welcome2.html';
+            }, 1200);
           } catch (error) {
+            if (error.code === 'auth/popup-closed-by-user') {
+              // User closed the popup, no need to show error
+              return;
+            }
+            console.error('Facebook login error:', error);
             alert('Facebook login failed: ' + error.message);
           }
         });
