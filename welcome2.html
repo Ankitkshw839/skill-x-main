@@ -51,7 +51,7 @@
             margin-top: 80px;
             padding: 6rem 5%;
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-                url('https://img.freepik.com/free-photo/young-student-woman-wearing-denim-jacket-using-laptop-computer-sitting-grass-campus-university_231208-12200.jpg');
+                url('assets/images/9027293.jpg');
             background-size: cover;
             background-position: center;
             color: white;
@@ -363,6 +363,98 @@
         .login-button:hover {
             box-shadow: var(--shadow-md);
         }
+
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+        }
+        
+        .scroll-reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .image-reveal {
+            opacity: 0;
+            transform: translateY(-100px);
+            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .image-reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .image-reveal::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, var(--primary-color), transparent);
+            opacity: 0.3;
+            transition: opacity 1s ease;
+            pointer-events: none;
+        }
+
+        .image-reveal.active::after {
+            opacity: 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        .feature-card.pace {
+            background: linear-gradient(135deg, #e0f2fe, #ffffff);
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .feature-card.expert {
+            background: linear-gradient(135deg, #fce7f3, #ffffff);
+            border-left: 4px solid #ec4899;
+        }
+
+        .feature-card.interactive {
+            background: linear-gradient(135deg, #ddd6fe, #ffffff);
+            border-left: 4px solid #8b5cf6;
+        }
+
+        .feature-card.certificate {
+            background: linear-gradient(135deg, #d9f99d, #ffffff);
+            border-left: 4px solid #84cc16;
+        }
+
+        .feature-card.community {
+            background: linear-gradient(135deg, #fed7aa, #ffffff);
+            border-left: 4px solid #f97316;
+        }
+
+        .feature-icon {
+            font-size: 1.25rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -376,7 +468,7 @@
             <a href="mycourses.html"><i class="fas fa-book-open"></i> My Courses</a>
             <a href="dashboard.html"><i class="fas fa-chart-bar"></i> Dashboard</a>
             <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
-            <a href="login.html" class="btn btn-primary login-button"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <a href="#" class="btn btn-primary login-button" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
     </header>
 
@@ -387,6 +479,150 @@
             <i class="fas fa-play-circle"></i> Start Learning
         </a>
     </section>
+
+    <section class="learning-promo" style="
+        padding: 4rem 5%;
+        background: linear-gradient(to right, rgba(255,255,255,0.95), rgba(255,255,255,0.8)), var(--light-bg);
+        overflow: hidden;
+    ">
+        <div class="scroll-reveal" style="
+            text-align: center;
+            margin-bottom: 2.5rem;
+        ">
+            <h2 style="
+                font-size: 2.8rem;
+                margin-bottom: 1rem;
+                color: var(--gray-800);
+                line-height: 1.2;
+            ">Transform Your Learning Experience</h2>
+            <p style="
+                font-size: 1.2rem;
+                color: var(--gray-600);
+                max-width: 800px;
+                margin: 0 auto;
+            ">Discover a new way of learning that adapts to your needs and schedule</p>
+        </div>
+
+        <div style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            align-items: center;
+        ">
+            <div class="scroll-reveal" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="feature-card pace">
+                    <i class="fas fa-clock feature-icon" style="color: #0ea5e9;"></i>
+                    <h3 style="margin-bottom: 0.3rem; color: var(--gray-800);">Learn at Your Own Pace</h3>
+                    <p style="color: var(--gray-600);">Set your own schedule and learn when it works best for you.</p>
+                </div>
+                
+                <div class="feature-card expert">
+                    <i class="fas fa-users feature-icon" style="color: #ec4899;"></i>
+                    <h3 style="margin-bottom: 0.3rem; color: var(--gray-800);">Expert-Led Courses</h3>
+                    <p style="color: var(--gray-600);">Learn from industry professionals with real-world experience.</p>
+                </div>
+
+                <div class="feature-card interactive">
+                    <i class="fas fa-laptop-code feature-icon" style="color: #8b5cf6;"></i>
+                    <h3 style="margin-bottom: 0.3rem; color: var(--gray-800);">Interactive Learning</h3>
+                    <p style="color: var(--gray-600);">Engage with hands-on projects and real-world applications.</p>
+                </div>
+            </div>
+
+            <div class="image-reveal" style="display: flex; justify-content: center;">
+                <img src="assets/images/vecteezy_3d-male-character-sitting-on-a-sofa-and-working-on-a-laptop_24387852.png" 
+                     alt="Student learning online" 
+                     style="
+                        max-width: 80%;
+                        height: auto;
+                        transform: perspective(1000px) rotateY(-5deg);
+                     ">
+            </div>
+        </div>
+    </section>
+
+    <section class="learning-benefits" style="
+        padding: 4rem 5%;
+        background: linear-gradient(to left, rgba(255,255,255,0.95), rgba(255,255,255,0.8)), var(--light-bg);
+    ">
+        <div style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            align-items: center;
+        ">
+            <div class="image-reveal" style="display: flex; justify-content: center;">
+                <img src="assets/images/girl.png" 
+                     alt="Student success" 
+                     style="
+                        max-width: 80%;
+                        height: auto;
+                     ">
+            </div>
+
+            <div class="scroll-reveal" style="display: flex; flex-direction: column; gap: 1rem;">
+                <h2 style="
+                    font-size: 2.5rem;
+                    margin-bottom: 1rem;
+                    color: var(--gray-800);
+                    line-height: 1.2;
+                ">Achieve Your Goals</h2>
+                
+                <div class="feature-card certificate">
+                    <i class="fas fa-certificate feature-icon" style="color: #84cc16;"></i>
+                    <h3 style="margin-bottom: 0.3rem; color: var(--gray-800);">Earn Certificates</h3>
+                    <p style="color: var(--gray-600);">Get recognized for your achievements with certificates.</p>
+                </div>
+
+                <div class="feature-card community">
+                    <i class="fas fa-comments feature-icon" style="color: #f97316;"></i>
+                    <h3 style="margin-bottom: 0.3rem; color: var(--gray-800);">Community Support</h3>
+                    <p style="color: var(--gray-600);">Connect with fellow learners and mentors.</p>
+                </div>
+
+                <a href="mycourses.html" class="btn btn-primary" style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    padding: 0.8rem 1.5rem;
+                    font-size: 1.1rem;
+                    border-radius: 8px;
+                    width: fit-content;
+                    margin-top: 0.5rem;
+                ">
+                    <i class="fas fa-rocket"></i>
+                    Start Learning Now
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Scroll reveal animation
+        function revealOnScroll() {
+            const elements = document.querySelectorAll('.scroll-reveal, .image-reveal');
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                // Different trigger point for images vs text
+                const triggerPoint = element.classList.contains('image-reveal') 
+                    ? windowHeight * 0.7  // Images appear earlier
+                    : windowHeight * 0.85; // Text appears later
+                
+                if (elementTop < triggerPoint) {
+                    element.classList.add('active');
+                }
+            });
+        }
+
+        // Initial check and add scroll listener
+        window.addEventListener('scroll', revealOnScroll);
+        window.addEventListener('load', revealOnScroll);
+        
+        // Trigger initial animation after a short delay
+        setTimeout(revealOnScroll, 300);
+    </script>
 
     <section class="categories">
         <h2 class="section-title">Explore Categories</h2>
@@ -521,5 +757,35 @@
             <p>© 2023 LearnHub. All rights reserved.</p>
         </div>
     </footer>
+
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBSOqsVon1gII-dK50qKc-xlsDFXFJWoog",
+      authDomain: "learnhub-c7279.firebaseapp.com",
+      projectId: "learnhub-c7279",
+      storageBucket: "learnhub-c7279.firebasestorage.app",
+      messagingSenderId: "743003569839",
+      appId: "1:743003569839:web:c215d850484bd0b0719e5a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+          await signOut(auth);
+          window.location.href = 'landpage.html';
+        } catch (error) {
+          alert('Logout failed: ' + error.message);
+        }
+      });
+    }
+    </script>
 </body>
 </html>
