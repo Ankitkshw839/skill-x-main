@@ -69,6 +69,16 @@
             background-color: #030014;
         }
 
+        #particleCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
         .hero-video {
             position: absolute;
             top: 0;
@@ -714,6 +724,14 @@
         .section-text.active[data-animation="slideBottom"] {
             animation: slideInBottom 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
+
+        /* Particle styles */
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -728,6 +746,7 @@
     </nav>
 
     <section class="hero">
+        <canvas id="particleCanvas"></canvas>
         <video class="hero-video" autoplay loop muted playsinline>
             <source src="/assets/videos/blackhole.webm" type="video/webm">
             <!-- Fallback message -->
@@ -794,11 +813,11 @@
                 <div class="image-sparkle"></div>
                 <img src="assets/images/girl.png" 
                      alt="Expert guidance">
-            </div>
+    </div>
             <div class="section-text">
                 <h2>Expert <span class="highlight">Guidance</span></h2>
                 <p>Connect with industry professionals and learn from their <span class="highlight">real-world</span> experience. Get personalized feedback and support throughout your journey.</p>
-                <div class="features-grid">
+        <div class="features-grid">
                     <div class="feature-card">
                         <i class="fas fa-video feature-icon"></i>
                         <h3>Live Sessions</h3>
@@ -893,7 +912,7 @@
                         <i class="fas fa-quote-left" style="color: rgba(255,255,255,0.1); font-size: 2rem; margin-bottom: 1rem;"></i>
                         <p style="margin-bottom: 1rem;">"The structured learning path and expert guidance made all the difference in my journey."</p>
                         <div style="color: #888;">- Michael Chen, Data Scientist</div>
-                    </div>
+            </div>
                 </div>
             </div>
         </div>
@@ -912,7 +931,7 @@
                     border: 1px solid rgba(255, 255, 255, 0.2);
                     transition: all 0.3s ease;
                 ">Begin Your Journey</a>
-            </div>
+    </div>
         </div>
     </section>
 
@@ -952,7 +971,7 @@
                             <i class="fas fa-star" style="margin-left: 1rem;"></i> 4.9
                         </div>
                     </div>
-                </div>
+            </div>
             </div>
         </div>
     </section>
@@ -982,10 +1001,10 @@
                     } else if (section.classList.contains('section-image')) {
                         section.style.animation = 'slideInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards';
                     }
-                }
-            });
-        }
-
+                    }
+                });
+            }
+            
         // Add horizontal scroll with mouse wheel for cards
         document.querySelectorAll('.animated-cards').forEach(container => {
             container.addEventListener('wheel', (e) => {
@@ -996,6 +1015,102 @@
 
         window.addEventListener('scroll', revealOnScroll);
         window.addEventListener('load', revealOnScroll);
+
+        // Particle animation
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Particle class
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                // Start particles from the edges
+                const side = Math.floor(Math.random() * 4);
+                switch(side) {
+                    case 0: // top
+                        this.x = Math.random() * canvas.width;
+                        this.y = -10;
+                        break;
+                    case 1: // right
+                        this.x = canvas.width + 10;
+                        this.y = Math.random() * canvas.height;
+                        break;
+                    case 2: // bottom
+                        this.x = Math.random() * canvas.width;
+                        this.y = canvas.height + 10;
+                        break;
+                    case 3: // left
+                        this.x = -10;
+                        this.y = Math.random() * canvas.height;
+                        break;
+                }
+                
+                this.size = Math.random() * 2 + 1;
+                this.speedMultiplier = Math.random() * 0.5 + 0.5;
+                this.opacity = Math.random() * 0.5 + 0.3;
+            }
+
+            update() {
+                // Calculate direction to center
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const dx = centerX - this.x;
+                const dy = centerY - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Increase speed as particles get closer to center
+                const speed = (1 / (distance + 100)) * 15;
+                
+                // Update position
+                this.x += dx * speed * this.speedMultiplier;
+                this.y += dy * speed * this.speedMultiplier;
+                
+                // Fade out as it gets closer to center
+                this.opacity = Math.max(0, this.opacity - speed * 0.1);
+                
+                // Reset particle if it's too close to center or completely faded
+                if (distance < 20 || this.opacity <= 0) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        // Create particle array
+        const particles = Array(100).fill().map(() => new Particle());
+
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Update and draw particles
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            requestAnimationFrame(animate);
+        }
+
+        // Start animation
+        animate();
     </script>
 </body>
 </html> 
