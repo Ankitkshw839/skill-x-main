@@ -809,8 +809,13 @@
         e.preventDefault();
         try {
           await signOut(auth);
-          // Clear browser history and redirect to login
-          window.location.replace('login.html');
+          // Clear browser history and redirect to index page
+          window.location.replace('index.html');
+          // Prevent going back to protected pages
+          window.history.pushState(null, '', 'index.html');
+          window.addEventListener('popstate', function() {
+              window.location.replace('login.html');
+          });
         } catch (error) {
           alert('Logout failed: ' + error.message);
         }
