@@ -910,6 +910,39 @@
         document.querySelectorAll('.save-btn').forEach(btn => {
             btn.addEventListener('click', () => saveChanges(btn.dataset.section));
         });
+
+        // Add logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.replace('index.html');
+                // Prevent going back to protected pages
+                window.history.pushState(null, '', 'index.html');
+                window.addEventListener('popstate', function() {
+                    window.location.replace('login.html');
+                });
+            } catch (error) {
+                console.error("Error signing out:", error);
+                alert('Error signing out. Please try again.');
+            }
+        });
+
+        // Prevent accessing page through browser back button after logout
+        window.addEventListener('load', function() {
+            if (!auth.currentUser) {
+                window.location.replace('login.html');
+            }
+        });
+
+        // Additional security for navigation
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+                // Page is loaded from cache (user clicked back button)
+                if (!auth.currentUser) {
+                    window.location.replace('login.html');
+                }
+            }
+        });
     </script>
 </body>
 </html>
