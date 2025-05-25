@@ -600,6 +600,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
+        import { auth, handleLogout } from './auth.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCGV8-zgiG0z04OTU-bK7fbOWPLT4X6TFY",
@@ -620,6 +621,25 @@
             if (!user) {
                 // If not authenticated, redirect to login page
                 window.location.replace('login.html');
+            }
+        });
+
+        // Add logout button to the nav
+        const nav = document.querySelector('nav');
+        const logoutBtn = document.createElement('a');
+        logoutBtn.href = '#';
+        logoutBtn.id = 'logoutBtn';
+        logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+        logoutBtn.addEventListener('click', handleLogout);
+        nav.appendChild(logoutBtn);
+
+        // Update user name when auth state changes
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // You can add code here to load the user's dashboard data
+                // For now, we'll just update the welcome message
+                const welcomeHeading = document.querySelector('.welcome-content h1');
+                welcomeHeading.textContent = `Welcome back, ${user.displayName || 'Learner'}!`;
             }
         });
     </script>
