@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -491,7 +492,14 @@
     </header>
 
     <section class="hero animate-fade-in">
-        <h1>Transform Your Future With Expert-Led Learning</h1>
+        <h1 style="
+            font-family: 'SF Pro Display', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-weight: 600;
+            font-style: normal;
+            letter-spacing: -0.5px;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+        ">Transform Your Future With Expert-Led Learning</h1>
         <p>Discover courses taught by industry experts and take your skills to the next level</p>
         <a href="mycourses.html" class="btn btn-primary">
             <i class="fas fa-play-circle"></i> Start Learning
@@ -647,92 +655,75 @@
         setTimeout(revealOnScroll, 300);
     </script>
 
-    <section class="categories">
-        <h2 class="section-title">Explore Categories</h2>
-        <p class="section-subtitle">Browse our diverse range of courses in today's most in-demand skills</p>
-        <div class="categories-grid">
-            <div class="category-card animate-fade-in">
-                <i class="fas fa-laptop-code"></i>
-                <h3>Technology</h3>
-                <p>Master the latest programming languages, web development frameworks, and tech skills for the digital era</p>
-                <a href="technology.html" class="btn btn-primary">Explore Technology</a>
-            </div>
-            <div class="category-card animate-fade-in">
-                <i class="fas fa-chart-line"></i>
-                <h3>Business</h3>
-                <p>Develop essential business skills in marketing, finance, management, and entrepreneurship</p>
-                <a href="business.html" class="btn btn-primary">Explore Business</a>
-            </div>
-            <div class="category-card animate-fade-in">
-                <i class="fas fa-palette"></i>
-                <h3>Design</h3>
-                <p>Unleash your creativity with courses in UI/UX design, graphic design, and creative thinking</p>
-                <a href="design.html" class="btn btn-primary">Explore Design</a>
-            </div>
-        </div>
-    </section>
-
-    <section class="courses">
-        <h2 class="section-title">Recommended For You</h2>
-        <p class="section-subtitle">Based on your interests and learning history</p>
-        <div class="course-grid">
-            <div class="course-card animate-fade-in">
-                <div class="course-image">
-                    <img src="https://img.freepik.com/free-vector/web-development-programmer-engineering-coding-website-augmented-reality-interface-screens-developer-project-engineer-programming-software-application-design-cartoon-illustration_107791-3863.jpg" alt="Web Development">
-                </div>
-                <div class="course-content">
-                    <h3>Web Development Fundamentals</h3>
-                    <p>Learn HTML, CSS, and JavaScript to build modern responsive websites</p>
-                    <div class="progress-container">
-                        <div class="progress-info">
-                            <span>Progress</span>
-                            <span>70%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 70%"></div>
-                        </div>
-                    </div>
-                    <span class="difficulty">Beginner</span>
-                </div>
-            </div>
-            <div class="course-card animate-fade-in">
-                <div class="course-image">
-                    <img src="https://img.freepik.com/free-vector/digital-marketing-team-with-laptops-light-bulb-marketing-team-metrics-marketing-team-lead-responsibilities-concept_335657-258.jpg" alt="Digital Marketing">
-                </div>
-                <div class="course-content">
-                    <h3>Digital Marketing Masterclass</h3>
-                    <p>Master social media, SEO, email marketing, and PPC advertising strategies</p>
-                    <div class="progress-container">
-                        <div class="progress-info">
-                            <span>Progress</span>
-                            <span>45%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 45%"></div>
-                        </div>
-                    </div>
-                    <span class="difficulty">Intermediate</span>
-                </div>
-            </div>
-            <div class="course-card animate-fade-in">
-                <div class="course-image">
-                    <img src="https://img.freepik.com/free-vector/data-extraction-concept-illustration_114360-4876.jpg" alt="Data Science">
-                </div>
-                <div class="course-content">
-                    <h3>Data Science Essentials</h3>
-                    <p>Learn Python, statistics, data visualization, and machine learning fundamentals</p>
-                    <div class="progress-container">
-                        <div class="progress-info">
-                            <span>Progress</span>
-                            <span>0%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <span class="difficulty">Advanced</span>
-                </div>
-            </div>
+    <!-- Replace the Categories section with an AI Chat button section -->
+    <section style="
+        padding: 5rem 5%;
+        background-color: #f5f5f5;
+        text-align: center;
+    ">
+        <div class="scroll-reveal" style="max-width: 700px; margin: 0 auto;">
+            <h2 style="
+                font-size: 2.5rem;
+                margin-bottom: 1.5rem;
+                color: var(--gray-800);
+                line-height: 1.2;
+            ">Get Personalized Help</h2>
+            <p style="
+                font-size: 1.2rem;
+                color: var(--gray-600);
+                margin-bottom: 2rem;
+            ">Have questions or need guidance? Chat with our AI assistant for instant help with your learning journey.</p>
+            
+            <style>
+                @keyframes gradientAnimation {
+                    0% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
+                }
+                
+                .ai-chat-btn {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.8rem;
+                    padding: 1rem 2rem;
+                    font-size: 1.2rem;
+                    background: linear-gradient(90deg, #4285f4, #ea4335, #fbbc05, #34a853, #4285f4);
+                    background-size: 300% 300%;
+                    color: white;
+                    border-radius: 50px;
+                    text-decoration: none;
+                    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                    animation: gradientAnimation 6s ease infinite;
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                .ai-chat-btn:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 20px rgba(66, 133, 244, 0.4);
+                }
+                
+                .ai-chat-btn::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                    transition: 0.5s;
+                }
+                
+                .ai-chat-btn:hover::after {
+                    left: 100%;
+                }
+            </style>
+            
+            <a href="ai-chat.html" class="ai-chat-btn">
+                <i class="fas fa-comment-dots"></i>
+                Chat with AI Assistant
+            </a>
         </div>
     </section>
 

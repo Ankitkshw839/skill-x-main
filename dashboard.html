@@ -10,63 +10,210 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #4285F4;
+            --secondary-color: #34A853;
+            --accent-color: #FBBC05;
+            --danger-color: #EA4335;
+            --gray-50: #f8f9fa;
+            --gray-100: #f1f3f4;
+            --gray-200: #e8eaed;
+            --gray-300: #dadce0;
+            --gray-400: #bdc1c6;
+            --gray-500: #9aa0a6;
+            --gray-600: #80868b;
+            --gray-700: #5f6368;
+            --gray-800: #3c4043;
+            --gray-900: #202124;
+            --shadow-sm: 0 1px 2px rgba(60, 64, 67, 0.1);
+            --shadow: 0 1px 3px rgba(60, 64, 67, 0.2);
+            --shadow-md: 0 2px 6px rgba(60, 64, 67, 0.15);
+            --shadow-lg: 0 4px 12px rgba(60, 64, 67, 0.2);
+            --radius: 4px;
+            --radius-lg: 8px;
+            --radius-full: 99px;
+        }
+
+        body {
+            background-color: var(--gray-100);
+            color: var(--gray-900);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.5;
+        }
+
+        header {
+            padding: 0 24px;
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+        }
+
+        nav a {
+            padding: 8px 16px;
+            color: var(--gray-700);
+            text-decoration: none;
+            border-radius: var(--radius);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+            margin-left: 4px;
+        }
+
+        nav a:hover {
+            background-color: var(--gray-100);
+            color: var(--gray-900);
+        }
+
+        nav a.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
         .dashboard-container {
             margin-top: 80px;
-            padding: 3rem 5%;
-            min-height: calc(100vh - 80px);
-            background-color: var(--gray-100);
+            padding: 24px;
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .welcome-banner {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            padding: 2.5rem;
+            padding: 24px;
+            background: white;
             border-radius: var(--radius-lg);
-            color: white;
-            margin-bottom: 2.5rem;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
             display: flex;
             align-items: center;
-            gap: 2rem;
-            box-shadow: var(--shadow-lg);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .welcome-banner::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: 30%;
-            background: url('https://img.freepik.com/free-vector/abstract-geometric-wireframe-background_52683-59421.jpg') no-repeat center center;
-            background-size: cover;
-            opacity: 0.2;
+            gap: 16px;
         }
 
         .welcome-banner img {
-            width: 100px;
-            height: 100px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: var(--shadow);
             object-fit: cover;
         }
 
         .welcome-content h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--gray-900);
         }
 
         .welcome-content p {
-            opacity: 0.9;
-            font-size: 1.1rem;
+            color: var(--gray-600);
+            font-size: 0.95rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .stat-card:nth-child(1)::after {
+            background: var(--primary-color);
+        }
+
+        .stat-card:nth-child(2)::after {
+            background: var(--secondary-color);
+        }
+
+        .stat-card:nth-child(3)::after {
+            background: var(--accent-color);
+        }
+
+        .stat-card:nth-child(4)::after {
+            background: var(--danger-color);
+        }
+
+        .stat-card h3 {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            margin-bottom: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-card i {
+            font-size: 1rem;
+        }
+
+        .stat-number {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--gray-900);
+        }
+
+        .stat-trend {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: auto;
+        }
+
+        .stat-trend.up {
+            color: var(--secondary-color);
+        }
+
+        .stat-trend.down {
+            color: var(--danger-color);
+        }
+
+        .stat-trend.neutral {
+            color: var(--gray-600);
         }
 
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 2rem;
+            gap: 24px;
         }
 
         @media (max-width: 992px) {
@@ -75,28 +222,16 @@
             }
         }
 
-        .dashboard-main {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        .dashboard-sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
         .dashboard-card {
             background: white;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow);
+            margin-bottom: 24px;
             overflow: hidden;
-            border: 1px solid var(--gray-200);
         }
 
         .card-header {
-            padding: 1.5rem;
+            padding: 16px 20px;
             border-bottom: 1px solid var(--gray-200);
             display: flex;
             justify-content: space-between;
@@ -104,312 +239,23 @@
         }
 
         .card-header h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 500;
             color: var(--gray-800);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 8px;
         }
 
         .card-body {
-            padding: 1.5rem;
+            padding: 20px;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            padding: 1.5rem;
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid var(--gray-200);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .stat-card i {
-            font-size: 2rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
-        .stat-card h3 {
-            font-size: 0.9rem;
-            color: var(--gray-600);
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--gray-800);
-            line-height: 1;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .activity-item {
-            padding: 1.25rem;
-            border-left: 4px solid var(--primary-color);
-            background: white;
-            border-radius: 0 var(--radius) var(--radius) 0;
-            margin-bottom: 1rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-        }
-
-        .activity-item:hover {
-            transform: translateX(5px);
-            box-shadow: var(--shadow);
-        }
-
-        .activity-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .activity-date {
-            font-weight: 600;
-            color: var(--gray-700);
-            margin-bottom: 0.25rem;
-        }
-
-        .activity-content {
-            color: var(--gray-600);
-        }
-
-        .calendar {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .calendar th {
-            padding: 0.75rem;
-            text-align: center;
-            font-weight: 500;
-            color: var(--gray-600);
-            font-size: 0.875rem;
-        }
-
-        .calendar td {
-            padding: 0.75rem;
-            text-align: center;
-            color: var(--gray-700);
-            font-size: 0.875rem;
-            cursor: pointer;
-            border-radius: var(--radius);
-            transition: all 0.2s ease;
-        }
-
-        .calendar td:hover {
-            background: var(--gray-100);
-        }
-
-        .calendar .today {
-            background: var(--primary-color);
-            color: white;
-            font-weight: 500;
-        }
-
-        .calendar .has-event {
-            position: relative;
-        }
-
-        .calendar td.has-event::after {
-            content: '';
-            position: absolute;
-            width: 5px;
-            height: 5px;
-            background: var(--accent-color);
-            border-radius: 50%;
-            bottom: 5px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .goal-item {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            border-bottom: 1px solid var(--gray-200);
-        }
-
-        .goal-item:last-child {
-            border-bottom: none;
-        }
-
-        .goal-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--gray-100);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 1rem;
-            color: var(--primary-color);
-        }
-
-        .goal-info {
-            flex: 1;
-        }
-
-        .goal-title {
-            font-weight: 500;
-            color: var(--gray-800);
-            margin-bottom: 0.25rem;
-        }
-
-        .goal-progress {
-            font-size: 0.875rem;
-            color: var(--gray-600);
-        }
-
-        .progress-bar {
-            height: 6px;
-            background: var(--gray-200);
-            border-radius: var(--radius-full);
-            margin-top: 0.5rem;
-        }
-
-        .progress {
-            height: 100%;
-            background: var(--primary-color);
-            border-radius: var(--radius-full);
-        }
-
-        .upcoming-item {
-            display: flex;
-            gap: 1rem;
-            padding: 1rem;
-            border-bottom: 1px solid var(--gray-200);
-        }
-
-        .upcoming-item:last-child {
-            border-bottom: none;
-        }
-
-        .upcoming-date {
-            min-width: 50px;
-            text-align: center;
-        }
-
-        .upcoming-day {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--gray-800);
-            line-height: 1;
-        }
-
-        .upcoming-month {
-            font-size: 0.75rem;
-            color: var(--gray-600);
-            text-transform: uppercase;
-        }
-
-        .upcoming-info {
-            flex: 1;
-        }
-
-        .upcoming-title {
-            font-weight: 500;
-            color: var(--gray-800);
-            margin-bottom: 0.25rem;
-        }
-
-        .upcoming-time {
-            font-size: 0.875rem;
-            color: var(--gray-600);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .see-all {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .see-all:hover {
-            text-decoration: underline;
-        }
-
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: var(--primary-color);
-            color: white;
-            text-decoration: none;
-            border-radius: var(--radius);
-            font-weight: 500;
-            transition: all 0.2s ease;
-            margin-top: 2rem;
-        }
-
-        .back-btn:hover {
-            background: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-
-        .mini-calendar-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-        .mini-calendar-header button {
-            background: none;
-            border: none;
-            font-size: 0.85rem;
-            color: var(--gray-600);
-            cursor: pointer;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.2s ease;
-        }
-
-        .mini-calendar-header button:hover {
-            background: var(--gray-200);
-            color: var(--gray-800);
-        }
-
-        #current-month-year {
-            font-weight: 500;
-            color: var(--gray-700);
-            font-size: 0.95rem;
-        }
-
-        /* Enrolled courses styles */
         .enrolled-course {
             display: flex;
-            align-items: center;
-            padding: 1rem;
+            padding: 16px;
             border-bottom: 1px solid var(--gray-200);
-            transition: transform 0.3s ease;
+            transition: background 0.2s;
         }
 
         .enrolled-course:last-child {
@@ -417,16 +263,15 @@
         }
 
         .enrolled-course:hover {
-            transform: translateX(5px);
             background: var(--gray-50);
         }
 
         .course-thumbnail {
-            width: 80px;
+            width: 60px;
             height: 60px;
             border-radius: var(--radius);
             overflow: hidden;
-            margin-right: 1rem;
+            margin-right: 16px;
             flex-shrink: 0;
         }
 
@@ -443,28 +288,258 @@
         .enrolled-course-title {
             font-weight: 500;
             color: var(--gray-800);
-            margin-bottom: 0.25rem;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
         }
 
         .enrolled-course-progress {
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             color: var(--gray-600);
-            margin-bottom: 0.5rem;
+            margin-bottom: 8px;
         }
 
         .course-progress-bar {
             height: 4px;
             background: var(--gray-200);
             border-radius: var(--radius-full);
-            width: 100%;
-            margin-top: 0.5rem;
+            overflow: hidden;
         }
 
         .course-progress {
             height: 100%;
+            border-radius: var(--radius-full);
+            transition: width 0.3s ease;
+        }
+
+        .course-progress-bar:nth-child(4n+1) .course-progress {
+            background: var(--primary-color);
+        }
+
+        .course-progress-bar:nth-child(4n+2) .course-progress {
+            background: var(--secondary-color);
+        }
+
+        .course-progress-bar:nth-child(4n+3) .course-progress {
+            background: var(--accent-color);
+        }
+
+        .course-progress-bar:nth-child(4n+4) .course-progress {
+            background: var(--danger-color);
+        }
+
+        .goal-item {
+            display: flex;
+            padding: 16px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .goal-item:last-child {
+            border-bottom: none;
+        }
+
+        .goal-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--gray-100);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: var(--gray-700);
+        }
+
+        .goal-info {
+            flex: 1;
+        }
+
+        .goal-title {
+            font-weight: 500;
+            color: var(--gray-800);
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        .goal-progress {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--gray-200);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
             background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
             border-radius: var(--radius-full);
             transition: width 0.3s ease;
+        }
+
+        .empty-state, .error-state {
+            text-align: center;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .empty-state i, .error-state i {
+            font-size: 2rem;
+            color: var(--gray-400);
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3, .error-state h3 {
+            font-size: 1.1rem;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p, .error-state p {
+            color: var(--gray-600);
+            margin-bottom: 16px;
+            max-width: 300px;
+        }
+
+        .primary-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .primary-btn:hover {
+            background: #3367d6;
+        }
+
+        .see-all {
+            font-size: 0.85rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .see-all:hover {
+            text-decoration: underline;
+        }
+
+        .mini-calendar {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .mini-calendar th {
+            padding: 8px;
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .mini-calendar td {
+            padding: 8px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--gray-700);
+            cursor: pointer;
+            border-radius: var(--radius);
+        }
+
+        .mini-calendar td:hover {
+            background: var(--gray-100);
+        }
+
+        .mini-calendar .today {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .upcoming-item {
+            display: flex;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .upcoming-item:last-child {
+            border-bottom: none;
+        }
+
+        .upcoming-date {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            background: var(--gray-100);
+            border-radius: var(--radius);
+            margin-right: 12px;
+        }
+
+        .upcoming-day {
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1;
+            color: var(--gray-800);
+        }
+
+        .upcoming-month {
+            font-size: 0.7rem;
+            color: var(--gray-600);
+            text-transform: uppercase;
+        }
+
+        .upcoming-info {
+            flex: 1;
+        }
+
+        .upcoming-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--gray-800);
+            margin-bottom: 4px;
+        }
+
+        .upcoming-time {
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .chart-container {
+            padding: 16px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+        }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease forwards;
         }
     </style>
 </head>
@@ -487,61 +562,44 @@
         <div class="welcome-banner animate-fade-in">
             <img src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg" alt="Profile">
             <div class="welcome-content">
-                <h1>Welcome back, John!</h1>
-                <p>Here's an overview of your learning progress and upcoming activities.</p>
+                <h1>Welcome back, <span id="user-name">John</span>!</h1>
+                <p>Here's an overview of your learning progress</p>
             </div>
         </div>
         
         <div class="stats-grid animate-fade-in">
             <div class="stat-card">
-                <i class="fas fa-book-open"></i>
-                <h3>Courses in Progress</h3>
-                <div class="stat-number">2</div>
+                <h3><i class="fas fa-book-open"></i> Courses in Progress</h3>
+                <div class="stat-number" id="courses-count">0</div>
+                <div class="stat-trend neutral">
+                    <i class="fas fa-minus"></i> No change
+                </div>
             </div>
             <div class="stat-card">
-                <i class="fas fa-clock"></i>
-                <h3>Hours Learned</h3>
-                <div class="stat-number">47</div>
+                <h3><i class="fas fa-clock"></i> Hours Learned</h3>
+                <div class="stat-number" id="hours-learned">0</div>
+                <div class="stat-trend up">
+                    <i class="fas fa-arrow-up"></i> +2 this week
+                </div>
             </div>
             <div class="stat-card">
-                <i class="fas fa-certificate"></i>
-                <h3>Certificates Earned</h3>
-                <div class="stat-number">5</div>
+                <h3><i class="fas fa-certificate"></i> Certificates Earned</h3>
+                <div class="stat-number" id="certificates-count">0</div>
+                <div class="stat-trend neutral">
+                    <i class="fas fa-minus"></i> No change
+                </div>
             </div>
             <div class="stat-card">
-                <i class="fas fa-trophy"></i>
-                <h3>Achievements</h3>
-                <div class="stat-number">12</div>
+                <h3><i class="fas fa-trophy"></i> Achievements</h3>
+                <div class="stat-number" id="achievements-count">0</div>
+                <div class="stat-trend up">
+                    <i class="fas fa-arrow-up"></i> +3 this week
+                </div>
             </div>
         </div>
 
         <div class="dashboard-grid animate-fade-in">
             <div class="dashboard-main">
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <h2><i class="fas fa-history"></i> Recent Activity</h2>
-                        <a href="#" class="see-all">View all <i class="fas fa-chevron-right"></i></a>
-                    </div>
-                    <div class="card-body">
-                        <div class="activity-item">
-                            <div class="activity-date">Today</div>
-                            <div class="activity-content">Completed lesson: <strong>CSS Flexbox Basics</strong> in Web Development Fundamentals</div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-date">Yesterday</div>
-                            <div class="activity-content">Started new course: <strong>Digital Marketing Masterclass</strong></div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-date">2 days ago</div>
-                            <div class="activity-content">Earned certificate in <strong>Web Development Fundamentals</strong></div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-date">3 days ago</div>
-                            <div class="activity-content">Completed quiz with score: <strong>92%</strong> in JavaScript Basics</div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="dashboard-card">
                     <div class="card-header">
                         <h2><i class="fas fa-bullseye"></i> Learning Goals</h2>
@@ -591,12 +649,21 @@
                 <div class="dashboard-card">
                     <div class="card-header">
                         <h2><i class="fas fa-graduation-cap"></i> Enrolled Courses</h2>
-                        <a href="mycourses.html" class="see-all">View all courses <i class="fas fa-chevron-right"></i></a>
+                        <a href="mycourses.html" class="see-all">View all <i class="fas fa-chevron-right"></i></a>
                     </div>
                     <div class="card-body">
                         <div id="enrolled-courses-list">
                             <!-- Enrolled courses will be dynamically added here -->
                         </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-line"></i> Learning Progress</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="progressChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -605,7 +672,6 @@
                 <div class="dashboard-card">
                     <div class="card-header">
                         <h2><i class="fas fa-calendar-alt"></i> Calendar</h2>
-                        <a href="calendar.html" class="see-all">Full Calendar <i class="fas fa-chevron-right"></i></a>
                     </div>
                     <div class="card-body">
                         <div id="mini-calendar-container">
@@ -614,7 +680,7 @@
                                 <span id="current-month-year">June 2023</span>
                                 <button id="next-month-mini"><i class="fas fa-chevron-right"></i></button>
                             </div>
-                            <table class="calendar" id="mini-calendar">
+                            <table class="mini-calendar" id="mini-calendar">
                                 <thead>
                                     <tr>
                                         <th>Mo</th>
@@ -674,83 +740,265 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
-        import { auth, handleLogout } from './auth.js';
+        // Remove the duplicate firebase imports and initialization
+        import { auth as authInstance, handleLogout } from './auth.js';
         import { getEnrolledCourses } from './courseEnrollment.js';
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCGV8-zgiG0z04OTU-bK7fbOWPLT4X6TFY",
-            authDomain: "simplexify.firebaseapp.com",
-            projectId: "simplexify",
-            storageBucket: "simplexify.firebasestorage.app",
-            messagingSenderId: "809236435012",
-            appId: "1:809236435012:web:18ade7317dda448c716c11",
-            measurementId: "G-H8667PT04T"
-        };
+        // Add Chart.js to create progress chart
+        let progressChart = null;
 
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const auth = getAuth(app);
+        // Function to create progress chart
+        function createProgressChart(enrolledCourses) {
+            if (!Array.isArray(enrolledCourses) || enrolledCourses.length === 0) {
+                return;
+            }
 
-        // Function to update enrolled courses display
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            
+            // Destroy previous chart if it exists
+            if (progressChart) {
+                progressChart.destroy();
+            }
+            
+            // Get last 7 days for labels
+            const labels = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+            }
+            
+            // Generate random data for demonstration
+            // In a real app, this would come from user activity logs
+            const data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Hours Spent Learning',
+                        data: [1.2, 0.8, 1.5, 2.1, 0.5, 1.8, 1.3],
+                        borderColor: '#4285F4',
+                        backgroundColor: 'rgba(66, 133, 244, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#4285F4',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: 'Courses Progress (%)',
+                        data: [5, 8, 12, 15, 18, 22, 25],
+                        borderColor: '#34A853',
+                        backgroundColor: 'rgba(52, 168, 83, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#34A853',
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        yAxisID: 'y1'
+                    }
+                ]
+            };
+            
+            progressChart = new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Hours'
+                            },
+                            grid: {
+                                display: true,
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                precision: 1
+                            }
+                        },
+                        y1: {
+                            position: 'right',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Progress %'
+                            },
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                precision: 0
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end'
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            titleColor: '#202124',
+                            bodyColor: '#5f6368',
+                            borderColor: 'rgba(0, 0, 0, 0.1)',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            usePointStyle: true,
+                            boxWidth: 8
+                        }
+                    }
+                }
+            });
+        }
+
+        // Add functions to calculate and update stats
+        async function updateDashboardStats(enrolledCourses) {
+            // Update courses count
+            const coursesCount = Array.isArray(enrolledCourses) ? enrolledCourses.length : 0;
+            document.getElementById('courses-count').textContent = coursesCount;
+            
+            // Calculate total hours based on course duration and progress
+            let totalHours = 0;
+            if (Array.isArray(enrolledCourses) && enrolledCourses.length > 0) {
+                enrolledCourses.forEach(course => {
+                    const courseDuration = course.duration || 0;
+                    const progress = course.progress || 0;
+                    // Each course has a duration in weeks, assume 5 hours per week
+                    const totalCourseHours = courseDuration * 5;
+                    // Calculate hours based on progress
+                    const hoursSpent = Math.round((progress / 100) * totalCourseHours);
+                    totalHours += hoursSpent;
+                });
+            }
+            document.getElementById('hours-learned').textContent = totalHours;
+            
+            // Count certificates (courses with 100% progress)
+            let certificatesCount = 0;
+            if (Array.isArray(enrolledCourses) && enrolledCourses.length > 0) {
+                certificatesCount = enrolledCourses.filter(course => 
+                    (course.progress === 100) || (course.status === 'completed')
+                ).length;
+            }
+            document.getElementById('certificates-count').textContent = certificatesCount;
+            
+            // Calculate achievements (each 25% progress milestone is an achievement)
+            let achievementsCount = 0;
+            if (Array.isArray(enrolledCourses) && enrolledCourses.length > 0) {
+                enrolledCourses.forEach(course => {
+                    const progress = course.progress || 0;
+                    // Count achievements (25%, 50%, 75%, 100% milestones)
+                    if (progress >= 25) achievementsCount++;
+                    if (progress >= 50) achievementsCount++;
+                    if (progress >= 75) achievementsCount++;
+                    if (progress >= 100) achievementsCount++;
+                });
+            }
+            document.getElementById('achievements-count').textContent = achievementsCount;
+            
+            // Create progress chart
+            createProgressChart(enrolledCourses);
+        }
+
+        // Update the updateEnrolledCourses function to also update stats
         async function updateEnrolledCourses() {
             try {
                 const enrolledCoursesList = document.getElementById('enrolled-courses-list');
                 const enrolledCourses = await getEnrolledCourses();
 
-                if (enrolledCourses.length === 0) {
+                console.log("Enrolled courses:", enrolledCourses);
+
+                // Update the dashboard stats
+                updateDashboardStats(enrolledCourses);
+
+                if (!Array.isArray(enrolledCourses) || enrolledCourses.length === 0) {
                     enrolledCoursesList.innerHTML = `
-                        <div style="text-align: center; padding: 2rem;">
-                            <i class="fas fa-book-open" style="font-size: 2rem; color: var(--gray-400); margin-bottom: 1rem;"></i>
-                            <p style="color: var(--gray-600);">No enrolled courses yet.</p>
-                            <a href="courses.html" class="enroll-btn" style="display: inline-block; margin-top: 1rem;">
-                                Browse Courses
-                            </a>
+                        <div class="empty-state">
+                            <i class="fas fa-book-open"></i>
+                            <h3>No courses yet</h3>
+                            <p>You haven't enrolled in any courses yet. Browse our courses to get started.</p>
+                            <a href="mycourses.html" class="primary-btn">Browse Courses</a>
                         </div>
                     `;
                     return;
                 }
 
-                const coursesHTML = enrolledCourses.map(course => `
-                    <div class="enrolled-course">
+                const coursesHTML = enrolledCourses.map((course, index) => {
+                    // Calculate progress percentage
+                    const progressPercent = course.progress || 0;
+                    // Use different colors for progress bars
+                    const colorClass = `course-${index % 4}`;
+                    
+                    return `
+                        <div class="enrolled-course" data-course-id="${course.title}">
                         <div class="course-thumbnail">
-                            <img src="${course.image || 'assets/images/course-default.jpg'}" alt="${course.title}">
+                                <img src="${course.imageUrl || 'https://img.freepik.com/free-vector/online-tutorials-concept_23-2148529858.jpg'}" alt="${course.title}">
                         </div>
                         <div class="enrolled-course-info">
                             <div class="enrolled-course-title">${course.title}</div>
-                            <div class="enrolled-course-progress">Progress: ${course.progress}%</div>
+                                <div class="enrolled-course-progress">Progress: ${progressPercent}%</div>
                             <div class="course-progress-bar">
-                                <div class="course-progress" style="width: ${course.progress}%"></div>
+                                    <div class="course-progress" style="width: ${progressPercent}%"></div>
                             </div>
                         </div>
                     </div>
-                `).join('');
+                    `;
+                }).join('');
 
                 enrolledCoursesList.innerHTML = coursesHTML;
 
-                // Update stats
-                document.querySelector('.stat-number').textContent = enrolledCourses.length;
+                // Add click listeners to enrolled courses
+                document.querySelectorAll('.enrolled-course').forEach(courseElement => {
+                    courseElement.addEventListener('click', () => {
+                        const courseId = courseElement.dataset.courseId;
+                        console.log("Clicked on course:", courseId);
+                        // You can redirect to the course page or open a course details modal here
+                        // window.location.href = `course-details.html?id=${courseId}`;
+                    });
+                });
             } catch (error) {
-                console.error('Error updating enrolled courses:', error);
+                console.error("Error updating enrolled courses:", error);
+                const enrolledCoursesList = document.getElementById('enrolled-courses-list');
+                enrolledCoursesList.innerHTML = `
+                    <div class="error-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Something went wrong</h3>
+                        <p>We couldn't load your courses. Please try again later.</p>
+                    </div>
+                `;
             }
         }
 
         // Check authentication state and update UI
-        auth.onAuthStateChanged(async (user) => {
+        authInstance.onAuthStateChanged(async (user) => {
             if (user) {
-                const welcomeHeading = document.querySelector('.welcome-content h1');
-                welcomeHeading.textContent = `Welcome back, ${user.displayName || 'Learner'}!`;
+                // Update welcome message with user's name
+                const userName = user.displayName || 'Learner';
+                document.getElementById('user-name').textContent = userName;
                 
                 // Load enrolled courses
                 updateEnrolledCourses();
 
                 // Listen for changes in user's enrollments
                 const database = getDatabase();
-                const enrollmentsRef = ref(database, `enrollments/${user.uid}`);
+                const enrollmentsRef = ref(database, `users/${user.uid}/enrolledCourses`);
                 onValue(enrollmentsRef, (snapshot) => {
+                    console.log("Enrollments updated in Firebase, refreshing display");
                     updateEnrolledCourses();
                 });
             } else {
@@ -898,97 +1146,10 @@
                 }
                 generateMiniCalendar(currentMonth, currentYear);
             });
-
-            // Initialize the upcoming events section based on events data
-            function updateUpcomingEvents() {
-                const upcomingContainer = document.querySelector('.dashboard-sidebar .dashboard-card:nth-child(2) .card-body');
-                upcomingContainer.innerHTML = '';
-                
-                // Get today's date and the next 30 days
-                const today = new Date();
-                const nextMonth = new Date(today);
-                nextMonth.setDate(today.getDate() + 30);
-                
-                // Collect all events in the next 30 days
-                let upcomingEvents = [];
-                
-                // Loop through each day in the next 30 days
-                for (let d = new Date(today); d <= nextMonth; d.setDate(d.getDate() + 1)) {
-                    const dateKey = formatDateKey(d);
-                    if (events[dateKey] && events[dateKey].length > 0) {
-                        // Add each event with its date
-                        events[dateKey].forEach(event => {
-                            upcomingEvents.push({
-                                date: new Date(d),
-                                ...event
-                            });
-                        });
-                    }
-                }
-                
-                // Sort by date and time
-                upcomingEvents.sort((a, b) => {
-                    if (a.date.getTime() !== b.date.getTime()) {
-                        return a.date.getTime() - b.date.getTime();
-                    }
-                    return a.time.localeCompare(b.time);
-                });
-                
-                // Limit to first 4 events
-                upcomingEvents = upcomingEvents.slice(0, 4);
-                
-                // If no events, show a message
-                if (upcomingEvents.length === 0) {
-                    upcomingContainer.innerHTML = '<p style="text-align:center;color:var(--gray-500);">No upcoming events scheduled.</p>';
-                    return;
-                }
-                
-                // Create HTML for each event
-                upcomingEvents.forEach(event => {
-                    const eventDate = event.date;
-                    const day = eventDate.getDate();
-                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                    const month = monthNames[eventDate.getMonth()];
-                    
-                    const eventItem = document.createElement('div');
-                    eventItem.className = 'upcoming-item';
-                    
-                    // Set color based on event type
-                    const eventColors = {
-                        class: 'var(--primary-color)',
-                        assignment: '#e53e3e',
-                        exam: '#dd6b20',
-                        meeting: '#38a169',
-                        other: '#805ad5'
-                    };
-                    
-                    eventItem.innerHTML = `
-                        <div class="upcoming-date">
-                            <div class="upcoming-day">${day}</div>
-                            <div class="upcoming-month">${month}</div>
-                        </div>
-                        <div class="upcoming-info">
-                            <div class="upcoming-title">${event.title}</div>
-                            <div class="upcoming-time">
-                                <i class="fas fa-clock"></i> ${event.time}
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Make the event clickable to go to the calendar
-                    eventItem.style.cursor = 'pointer';
-                    eventItem.addEventListener('click', function() {
-                        localStorage.setItem('selectedCalendarDate', formatDateKey(eventDate));
-                        window.location.href = 'calendar.html';
-                    });
-                    
-                    upcomingContainer.appendChild(eventItem);
-                });
-            }
-            
-            // Initialize upcoming events
-            updateUpcomingEvents();
         });
     </script>
+    
+    <!-- Add Chart.js script -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

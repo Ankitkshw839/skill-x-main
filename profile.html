@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -528,6 +529,41 @@
                 transform: scale(1.2);
             }
         }
+
+        /* Add styles for the courses wheel chart section */
+        .chart-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .empty-chart-message {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -654,17 +690,31 @@
                     </div>
                 </div>
             </div>
+
+            <div class="profile-section full-width">
+                <h3 class="section-title">
+                    <span>My Learning Journey</span>
+                </h3>
+                <div id="courses-chart-container" class="chart-container">
+                    <canvas id="coursesChart"></canvas>
+                </div>
+                <div id="chart-legend" class="chart-legend">
+                    <!-- Legend items will be added dynamically -->
+                </div>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { auth, handleLogout } from './auth.js';
-        import { getDatabase, ref as dbRef, onValue, update } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+        import { getDatabase, ref, get, onValue, update } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-storage.js";
+        import { getEnrolledCourses } from './courseEnrollment.js';
 
         const database = getDatabase();
         const storage = getStorage();
         let currentUserData = null;
+        let coursesChart = null;
 
         // Load user data when auth state changes
         auth.onAuthStateChanged((user) => {
@@ -676,7 +726,7 @@
         // Load user data from Firebase
         function loadUserData(userId) {
             showLoading(true);
-            const userRef = dbRef(database, 'users/' + userId);
+            const userRef = ref(database, 'users/' + userId);
             onValue(userRef, (snapshot) => {
                 showLoading(false);
                 const data = snapshot.val();
@@ -789,7 +839,7 @@
             });
 
             try {
-                await update(dbRef(database, 'users/' + user.uid), updates);
+                await update(ref(database, 'users/' + user.uid), updates);
                 
                 // Update header immediately if name was changed
                 if (updates.name) {
@@ -902,6 +952,214 @@
 
         // Update logout button event listener to use the new handleLogout function
         document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+
+        // Function to create the courses wheel chart
+        async function createCoursesChart() {
+            try {
+                // Get enrolled courses
+                const enrolledCourses = await getEnrolledCourses();
+                
+                console.log("Creating wheel chart with courses:", enrolledCourses);
+                
+                const chartContainer = document.getElementById('courses-chart-container');
+                const legendContainer = document.getElementById('chart-legend');
+                
+                // Check if we have courses to display
+                if (!Array.isArray(enrolledCourses) || enrolledCourses.length === 0) {
+                    chartContainer.innerHTML = `
+                        <div class="empty-chart-message">
+                            <i class="fas fa-chart-pie" style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;"></i>
+                            <p>You haven't enrolled in any courses yet.</p>
+                            <a href="mycourses.html" style="color: #4c35de; text-decoration: none; display: inline-block; margin-top: 1rem;">
+                                Browse Courses <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    `;
+                    legendContainer.innerHTML = '';
+                    return;
+                }
+                
+                // Define chart colors - vibrant colors that work well together
+                const colors = [
+                    '#4834d4', '#eb4d4b', '#6ab04c', '#f0932b', '#be2edd',
+                    '#686de0', '#badc58', '#f9ca24', '#22a6b3', '#e056fd',
+                    '#7ed6df', '#e17055', '#0984e3', '#d63031', '#fdcb6e'
+                ];
+                
+                // Prepare data for the chart
+                const labels = enrolledCourses.map(course => course.title);
+                const data = enrolledCourses.map(course => course.duration || 1); // Use duration as the value
+                const backgroundColors = colors.slice(0, enrolledCourses.length);
+                
+                // Create the chart
+                const ctx = document.getElementById('coursesChart').getContext('2d');
+                
+                // Destroy previous chart if it exists
+                if (coursesChart) {
+                    coursesChart.destroy();
+                }
+                
+                coursesChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: backgroundColors,
+                            borderColor: 'rgba(255, 255, 255, 0.5)',
+                            borderWidth: 2,
+                            hoverOffset: 15
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const course = enrolledCourses[context.dataIndex];
+                                        const progress = course.progress || 0;
+                                        return [
+                                            label,
+                                            `Duration: ${value} weeks`,
+                                            `Progress: ${progress}%`
+                                        ];
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '60%',
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true
+                        }
+                    }
+                });
+                
+                // Create custom legend
+                legendContainer.innerHTML = '';
+                
+                labels.forEach((label, index) => {
+                    const course = enrolledCourses[index];
+                    const legendItem = document.createElement('div');
+                    legendItem.className = 'legend-item';
+                    legendItem.innerHTML = `
+                        <div class="legend-color" style="background-color: ${backgroundColors[index]}"></div>
+                        <span>${label} (${course.progress || 0}%)</span>
+                    `;
+                    
+                    // Add click event to highlight the corresponding segment
+                    legendItem.addEventListener('click', () => {
+                        // Find which segment is active
+                        const activeSegments = coursesChart.getActiveElements();
+                        
+                        // If this segment is already active, deactivate all
+                        if (activeSegments.length === 1 && activeSegments[0].index === index) {
+                            coursesChart.setActiveElements([]);
+                        } else {
+                            // Otherwise activate just this segment
+                            coursesChart.setActiveElements([{
+                                datasetIndex: 0,
+                                index: index
+                            }]);
+                        }
+                        
+                        coursesChart.update();
+                    });
+                    
+                    legendContainer.appendChild(legendItem);
+                });
+                
+            } catch (error) {
+                console.error("Error creating courses chart:", error);
+                document.getElementById('courses-chart-container').innerHTML = `
+                    <div class="empty-chart-message">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #d63031; margin-bottom: 1rem;"></i>
+                        <p>Unable to load your courses data.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Listen for authentication state changes
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    // Load user profile data
+                    loadUserProfile(user.uid);
+                    
+                    // Create the courses chart
+                    createCoursesChart();
+                    
+                    // Listen for changes in user's courses
+                    const enrollmentsRef = ref(database, `users/${user.uid}/enrolledCourses`);
+                    onValue(enrollmentsRef, () => {
+                        console.log("Enrolled courses updated, refreshing chart");
+                        createCoursesChart();
+                    });
+                    
+                } catch (error) {
+                    console.error("Error initializing profile:", error);
+                }
+            } else {
+                // Redirect to login if not logged in
+                window.location.href = "login.html";
+            }
+        });
+
+        async function loadUserProfile(userId) {
+            // Your existing loadUserProfile function...
+        }
+
+        function handleProfilePictureClick() {
+            document.getElementById('profilePictureInput').click();
+        }
+
+        function handleProfilePictureChange(event) {
+            const file = event.target.files[0];
+            if (file) {
+                showLoading(true);
+                
+                // Upload to Firebase Storage
+                const user = auth.currentUser;
+                if (!user) {
+                    showLoading(false);
+                    return;
+                }
+                
+                // Create storage reference
+                const profilePicRef = storageRef(storage, `profile-pictures/${user.uid}`);
+                
+                // Upload file
+                uploadBytes(profilePicRef, file).then((snapshot) => {
+                    // Get download URL
+                    getDownloadURL(snapshot.ref).then((downloadURL) => {
+                        // Update profile picture in database
+                        update(ref(database, 'users/' + user.uid), {
+                            profilePicture: downloadURL
+                        }).then(() => {
+                            // Update UI
+                            document.getElementById('profilePicture').src = downloadURL;
+                            showLoading(false);
+                        }).catch((error) => {
+                            console.error("Error updating profile picture URL:", error);
+                            showLoading(false);
+                        });
+                    }).catch((error) => {
+                        console.error("Error getting download URL:", error);
+                        showLoading(false);
+                    });
+                }).catch((error) => {
+                    console.error("Error uploading profile picture:", error);
+                    showLoading(false);
+                });
+            }
+        }
     </script>
 </body>
 </html>

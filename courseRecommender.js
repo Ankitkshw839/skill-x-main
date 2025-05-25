@@ -182,16 +182,21 @@ const courseTemplates = {
 };
 
 async function callOpenRouterAPI(userData) {
+    console.log("Calling OpenRouter API with data:", userData);
+    
+    try {
+        console.log("Making API request to OpenRouter with model: mistralai/devstral-small:free");
+        
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer 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',
+                'Authorization': 'Bearer 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',
             'HTTP-Referer': window.location.origin,
             'X-Title': 'Simplexify Learning Platform'
         },
         body: JSON.stringify({
-            model: "mistralai/mistral-7b-instruct",
+                model: "mistralai/devstral-small:free",
             messages: [
                 {
                     role: "system",
@@ -231,12 +236,18 @@ async function callOpenRouterAPI(userData) {
     });
 
     if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`API call failed: ${response.status} ${response.statusText}`, errorText);
         throw new Error(`API call failed: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
-    console.log("API Response:", data);
+        console.log("API Response received:", data);
     return data;
+    } catch (error) {
+        console.error("Error in OpenRouter API call:", error);
+        throw error;
+    }
 }
 
 export async function generateCourseRecommendations(userData) {
@@ -249,11 +260,50 @@ export async function generateCourseRecommendations(userData) {
         let courses;
         try {
             const content = apiResponse.choices[0].message.content;
-            const parsed = JSON.parse(content);
+            
+            // Sometimes the API might return content with markdown code blocks, let's handle that
+            let jsonContent = content;
+            if (content.includes("```json")) {
+                jsonContent = content.split("```json")[1].split("```")[0].trim();
+            } else if (content.includes("```")) {
+                jsonContent = content.split("```")[1].split("```")[0].trim();
+            }
+            
+            // Try to parse the JSON
+            const parsed = JSON.parse(jsonContent);
             courses = parsed.courses || [];
+            
+            if (!Array.isArray(courses) || courses.length === 0) {
+                console.error("No valid courses in API response:", parsed);
+                
+                // Fall back to template courses if available
+                if (userData.mainInterest && userData.experienceLevel && 
+                    courseTemplates[userData.mainInterest.toLowerCase()] && 
+                    courseTemplates[userData.mainInterest.toLowerCase()][userData.experienceLevel.toLowerCase()]) {
+                    
+                    console.log("Falling back to template courses");
+                    courses = courseTemplates[userData.mainInterest.toLowerCase()][userData.experienceLevel.toLowerCase()];
+                } else {
+                    // Use programming beginner as ultimate fallback
+                    console.log("Using default fallback courses");
+                    courses = courseTemplates.programming.beginner;
+                }
+            }
         } catch (error) {
-            console.error("Error parsing API response:", error);
-            throw new Error("Invalid response format from API");
+            console.error("Error parsing API response:", error, "Response:", apiResponse);
+            
+            // Fall back to template courses
+            if (userData.mainInterest && userData.experienceLevel && 
+                courseTemplates[userData.mainInterest.toLowerCase()] && 
+                courseTemplates[userData.mainInterest.toLowerCase()][userData.experienceLevel.toLowerCase()]) {
+                
+                console.log("Falling back to template courses after parse error");
+                courses = courseTemplates[userData.mainInterest.toLowerCase()][userData.experienceLevel.toLowerCase()];
+            } else {
+                // Use programming beginner as ultimate fallback
+                console.log("Using default fallback courses after parse error");
+                courses = courseTemplates.programming.beginner;
+            }
         }
 
         // Validate and clean each course, and add relevant images
@@ -283,25 +333,59 @@ export async function generateCourseRecommendations(userData) {
             index === self.findIndex((c) => c.title === course.title)
         );
 
-        // Ensure we have exactly 10 courses
-        const finalCourses = uniqueCourses.slice(0, 10);
+        // Ensure we have at least some courses, pad with templates if needed
+        let finalCourses = uniqueCourses.slice(0, 10);
+        
+        if (finalCourses.length < 3) {
+            console.log("Not enough courses generated, adding fallback courses");
+            
+            // Add some template courses if we don't have enough
+            let additionalCourses = [];
+            if (userData.mainInterest && courseTemplates[userData.mainInterest.toLowerCase()]) {
+                const levelCourses = courseTemplates[userData.mainInterest.toLowerCase()][userData.experienceLevel.toLowerCase()] || 
+                                    courseTemplates[userData.mainInterest.toLowerCase()].beginner;
+                additionalCourses = levelCourses || [];
+            } else {
+                additionalCourses = courseTemplates.programming.beginner;
+            }
+            
+            // Add template courses until we have at least 5 courses
+            const existingTitles = finalCourses.map(c => c.title);
+            for (const course of additionalCourses) {
+                if (!existingTitles.includes(course.title)) {
+                    const templateCourse = { ...course };
+                    templateCourse.imageUrl = getRelevantImage(
+                        templateCourse.title,
+                        templateCourse.keyTopics
+                    );
+                    finalCourses.push(templateCourse);
+                    existingTitles.push(templateCourse.title);
+                    
+                    if (finalCourses.length >= 5) break;
+                }
+            }
+        }
 
         console.log("Final recommendations:", finalCourses);
         return finalCourses;
 
     } catch (error) {
         console.error("Error in generateCourseRecommendations:", error);
-        throw error;
+        // Return some default courses instead of failing completely
+        return courseTemplates.programming.beginner.map(course => {
+            const templateCourse = { ...course };
+            templateCourse.imageUrl = getRelevantImage(
+                templateCourse.title,
+                templateCourse.keyTopics
+            );
+            return templateCourse;
+        });
     }
 }
 
+// Export a dummy function that doesn't actually save to the database
 export async function saveCourseRecommendations(userId, courses) {
-    try {
-        const database = getDatabase();
-        await set(ref(database, `users/${userId}/recommendedCourses`), courses);
+    // This function now just returns success without saving to database
+    console.log("Not saving recommended courses to database as requested.");
         return true;
-    } catch (error) {
-        console.error("Error saving course recommendations:", error);
-        throw error;
-    }
 } 

@@ -385,7 +385,7 @@
         </div>
 
         <div class="browse-section">
-            <button onclick="handleBrowseCourses()" class="browse-btn">
+            <button class="browse-btn">
                 <i class="fas fa-compass"></i> Browse AI-Recommended Courses
             </button>
             <p class="browse-description">Get personalized course recommendations based on your interests and experience level</p>
@@ -444,37 +444,56 @@
 
                 // Get user data if not already loaded
                 if (!currentUserData) {
+                    try {
                     currentUserData = await loadUserData(auth.currentUser.uid);
+                    } catch (error) {
+                        console.error("Error loading user data:", error);
+                        // If we can't load user data, use some defaults
+                        currentUserData = {
+                            mainInterest: 'programming',
+                            specificInterests: ['web development'],
+                            experienceLevel: 'Beginner'
+                        };
+                    }
                 }
 
                 console.log("Current user data:", currentUserData);
 
                 // Prepare user preferences for AI
                 const userPreferences = {
-                    mainInterest: currentUserData.mainInterest || '',
+                    mainInterest: currentUserData.mainInterest || 'programming',
                     specificInterests: currentUserData.specificInterests || [],
                     experienceLevel: currentUserData.experienceLevel || 'Beginner'
                 };
 
                 console.log("Sending preferences to AI:", userPreferences);
 
+                try {
                 // Get course recommendations
                 const recommendations = await generateCourseRecommendations(userPreferences);
                 
                 console.log("Received recommendations:", recommendations);
 
+                    if (Array.isArray(recommendations) && recommendations.length > 0) {
                 // Save recommendations to Firebase
                 await saveCourseRecommendations(auth.currentUser.uid, recommendations);
                 
                 // Display recommendations
                 displayCourses(recommendations);
+                    } else {
+                        throw new Error("Invalid recommendations format received");
+                    }
+                } catch (error) {
+                    console.error("API error:", error);
+                    alert(`Error from AI service: ${error.message}. Please try again later.`);
+                }
                 
                 // Remove loading overlay
                 document.body.removeChild(loadingDiv);
                 
             } catch (error) {
-                console.error("Error in course recommendation:", error);
-                alert('Error generating course recommendations. Please try again.');
+                console.error("Error in course recommendation process:", error);
+                alert('Error generating course recommendations. Please try again later.');
                 // Remove loading overlay in case of error
                 const loadingDiv = document.querySelector('.loading-overlay');
                 if (loadingDiv) {
@@ -500,6 +519,71 @@
             });
         }
 
+        async function enrollInCourse(course) {
+            // Check if user is logged in
+            if (!auth.currentUser) {
+                throw new Error("You must be logged in to enroll in a course");
+            }
+            
+            const userId = auth.currentUser.uid;
+            const database = getDatabase();
+            
+            // Get current date
+            const enrollmentDate = new Date().toISOString();
+            
+            // Add progress tracking data to the course
+            const enrolledCourse = {
+                ...course,
+                enrollmentDate: enrollmentDate,
+                progress: 0,
+                lastAccessed: enrollmentDate,
+                status: 'in-progress',
+                completedLessons: [],
+                notes: []
+            };
+            
+            try {
+                // First get the existing enrolledCourses
+                const userEnrolledCoursesRef = ref(database, `users/${userId}/enrolledCourses`);
+                
+                return new Promise((resolve, reject) => {
+                    onValue(userEnrolledCoursesRef, async (snapshot) => {
+                        try {
+                            let enrolledCourses = snapshot.exists() ? snapshot.val() : [];
+                            
+                            // Make sure enrolledCourses is an array
+                            if (!Array.isArray(enrolledCourses)) {
+                                enrolledCourses = [];
+                            }
+                            
+                            // Check if course is already enrolled
+                            const alreadyEnrolled = enrolledCourses.some(c => c.title === course.title);
+                            
+                            if (alreadyEnrolled) {
+                                throw new Error(`You are already enrolled in "${course.title}"`);
+                            }
+                            
+                            // Add the new course to the array
+                            enrolledCourses.push(enrolledCourse);
+                            
+                            // Save back to Firebase
+                            await set(userEnrolledCoursesRef, enrolledCourses);
+                            console.log(`Successfully enrolled in course: ${course.title}`);
+                            resolve();
+                        } catch (error) {
+                            console.error("Error in onValue callback:", error);
+                            reject(error);
+                        }
+                    }, {
+                        onlyOnce: true // Only read the data once
+                    });
+                });
+            } catch (error) {
+                console.error("Error in enrollInCourse:", error);
+                throw error;
+            }
+        }
+
         function displayCourses(courses) {
             const courseList = document.querySelector('#courseList');
             courseList.innerHTML = ''; // Clear existing courses
@@ -509,7 +593,18 @@
                 return;
             }
 
-            courses.forEach(course => {
+            if (courses.length === 0) {
+                courseList.innerHTML = `
+                    <div class="empty-courses">
+                        <i class="fas fa-books"></i>
+                        <h2>No courses found</h2>
+                        <p>We couldn't find any courses matching your criteria.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            courses.forEach((course, index) => {
                 const courseCard = document.createElement('div');
                 courseCard.className = 'course-card animate-fade-in';
                 courseCard.innerHTML = `
@@ -540,12 +635,55 @@
                                 <div class="progress" style="width: 0%"></div>
                             </div>
                         </div>
-                        <a href="#" class="continue-btn">
+                        <button class="continue-btn start-learning-btn" data-course-index="${index}">
                             <i class="fas fa-play-circle"></i> Start Learning
-                        </a>
+                        </button>
                     </div>
                 `;
                 courseList.appendChild(courseCard);
+            });
+
+            // Add event listeners to all "Start Learning" buttons
+            document.querySelectorAll('.start-learning-btn').forEach(button => {
+                button.addEventListener('click', async (event) => {
+                    const courseIndex = event.currentTarget.dataset.courseIndex;
+                    const course = courses[courseIndex];
+                    
+                    try {
+                        // Create a loading indicator
+                        const loadingDiv = document.createElement('div');
+                        loadingDiv.className = 'loading-overlay';
+                        loadingDiv.innerHTML = `
+                            <div class="loading-content">
+                                <div class="spinner"></div>
+                                <p>Enrolling in course...</p>
+                            </div>
+                        `;
+                        document.body.appendChild(loadingDiv);
+
+                        console.log("Starting course:", course.title);
+                        
+                        // Add the course to user's enrolled courses in Firebase
+                        await enrollInCourse(course);
+                        
+                        // Remove loading overlay
+                        document.body.removeChild(loadingDiv);
+                        
+                        // Show success message and ask if user wants to go to dashboard
+                        if (confirm(`Successfully enrolled in "${course.title}"! Would you like to view your enrolled courses in the Dashboard?`)) {
+                            window.location.href = 'dashboard.html';
+                        }
+                    } catch (error) {
+                        console.error("Error enrolling in course:", error);
+                        alert("Failed to enroll in course. Please try again.");
+                        
+                        // Remove loading overlay in case of error
+                        const loadingDiv = document.querySelector('.loading-overlay');
+                        if (loadingDiv) {
+                            document.body.removeChild(loadingDiv);
+                        }
+                    }
+                });
             });
         }
 
@@ -557,13 +695,16 @@
                     currentUserData = await loadUserData(user.uid);
                     
                     // Check if there are already recommended courses
-                    if (currentUserData.recommendedCourses) {
+                    if (currentUserData.recommendedCourses && Array.isArray(currentUserData.recommendedCourses) && currentUserData.recommendedCourses.length > 0) {
                         displayCourses(currentUserData.recommendedCourses);
                     }
                 } catch (error) {
                     console.error("Error loading user data:", error);
-                    alert('Error loading your profile data. Please try again later.');
+                    console.log("Will generate recommendations when user clicks the browse button");
                 }
+            } else {
+                // Handle not logged in state if needed
+                console.log("User not logged in");
             }
         });
     </script>
