@@ -375,7 +375,7 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
-            }
+        }
         }
 
         @keyframes pulse {
@@ -409,7 +409,7 @@
 
             .profile-header-info h1 {
                 font-size: 2rem;
-            }
+        }
 
             .profile-sections-grid {
                 grid-template-columns: 1fr;
@@ -425,7 +425,7 @@
 
             .nav-links a {
                 margin-left: 1.5rem;
-            }
+        }
         }
 
         #profilePictureInput {
@@ -553,7 +553,7 @@
         <div class="profile-header">
             <div class="profile-avatar">
                 <img src="assets/images/boy.png" alt="Profile Avatar">
-            </div>
+                    </div>
             <div class="profile-header-info">
                 <h1>
                     <span class="gradient-text highlight">
@@ -565,7 +565,7 @@
                             <div class="sparkle"></div>
                             <div class="sparkle"></div>
                             <div class="sparkle"></div>
-                        </div>
+                </div>
                     </span>
                 </h1>
                 <p>Manage your personal information and preferences</p>
@@ -600,6 +600,11 @@
                         <label>Occupation</label>
                         <span></span>
                         <input type="text" placeholder="Enter your occupation">
+                    </div>
+                    <div class="profile-field" data-field="phone">
+                        <label>Phone Number</label>
+                        <span></span>
+                        <input type="tel" placeholder="Enter your 10-digit phone number" maxlength="10" pattern="[0-9]{10}">
                     </div>
                 </div>
                 <button class="save-btn" data-section="personal">Save Changes</button>
@@ -710,6 +715,7 @@
             setFieldValue('email', data.email || '');
             setFieldValue('dob', data.personalInfo?.dob || '');
             setFieldValue('occupation', data.personalInfo?.occupation || '');
+            setFieldValue('phone', data.personalInfo?.phone || '');
 
             // Update location
             setFieldValue('country', data.location?.country || '');
@@ -886,7 +892,7 @@
                 loader.classList.add('visible');
             } else {
                 loader.classList.remove('visible');
-            }
+                }
         }
 
         // Add event listeners to save buttons

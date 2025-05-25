@@ -587,6 +587,11 @@
                 <label for="occupation">Current Occupation</label>
                 <input type="text" id="occupation" placeholder="Student, Professional, etc.">
             </div>
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" placeholder="Enter your 10-digit phone number" maxlength="10" pattern="[0-9]{10}">
+                <div id="phone-error" style="color: #ea4335; font-size: 0.875rem; margin-top: 0.5rem; display: none;">Please enter a valid 10-digit phone number</div>
+            </div>
             <div class="navigation-buttons">
                 <button class="nav-btn back-btn" onclick="prevStep(4)">Back</button>
                 <button class="nav-btn next-btn" onclick="submitForm()">Finish</button>
@@ -633,6 +638,17 @@
                 return;
             }
 
+            // Validate phone number
+            const phoneNumber = document.getElementById('phone').value;
+            const phoneError = document.getElementById('phone-error');
+            
+            if (!/^\d{10}$/.test(phoneNumber)) {
+                phoneError.style.display = 'block';
+                return;
+            } else {
+                phoneError.style.display = 'none';
+            }
+
             try {
                 const userData = {
                     mainInterest: document.querySelector('.interest-card.selected')?.dataset.interest || '',
@@ -644,7 +660,8 @@
                     },
                     personalInfo: {
                         dob: document.getElementById('dob').value,
-                        occupation: document.getElementById('occupation').value
+                        occupation: document.getElementById('occupation').value,
+                        phone: phoneNumber
                     },
                     timestamp: new Date().toISOString(),
                     userId: user.uid,

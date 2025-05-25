@@ -312,6 +312,45 @@
             transform: translateY(-2px);
         }
 
+        /* Enrollment button styles */
+        .enroll-btn {
+            display: block;
+            width: 100%;
+            padding: 0.8rem;
+            margin-top: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: #4c35de;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .enroll-btn:hover:not(:disabled) {
+            background: #3a28b3;
+            transform: translateY(-2px);
+        }
+
+        .enroll-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .enroll-btn.enrolled {
+            background: #22c55e;
+            cursor: default;
+        }
+
+        .enroll-btn i {
+            font-size: 1rem;
+        }
+
         @keyframes fadeUp {
             to {
                 opacity: 1;
@@ -401,8 +440,7 @@
         <!-- Development Courses -->
         <div class="course-card">
             <div class="course-image" style="background-image: url('assets/images/web-dev.jpg')"></div>
-            <div class="course-content">
-                <span class="course-tag">Development</span>
+            <div class="course-content">                <span class="course-tag">Development</span>
                 <h3 class="course-title">Modern JavaScript from Zero to Hero</h3>
                 <p class="course-description">Master JavaScript fundamentals, ES6+, async programming, and modern frameworks.</p>
                 <div class="course-meta">
@@ -412,6 +450,9 @@
                     </div>
                     <div class="course-price">$89.99</div>
                 </div>
+                <button class="enroll-btn" onclick="handleEnroll('js-fundamentals', this)" data-course-id="js-fundamentals">
+                    <i class="fas fa-graduation-cap"></i> Enroll Now
+                </button>
             </div>
         </div>
 
@@ -548,5 +589,83 @@
             revealFeatured();
         });
     </script>
+    <script type="module">
+        import { auth } from './auth.js';
+        import { enrollInCourse, getEnrolledCourses } from './courseEnrollment.js';
+
+        // Mapping of course IDs to course data
+        const courseData = {
+            'js-fundamentals': {
+                title: 'Modern JavaScript from Zero to Hero',
+                description: 'Master JavaScript fundamentals, ES6+, async programming, and modern frameworks.',
+                image: 'assets/images/web-dev.jpg',
+                price: 89.99,
+                rating: 4.8,
+                reviews: 2500,
+                duration: '12 weeks',
+                level: 'Beginner to Advanced'
+            },
+            // Add more courses as needed
+        };
+
+        // Function to handle enrollment
+        window.handleEnroll = async (courseId, button) => {
+            try {
+                if (!auth.currentUser) {
+                    // Redirect to login if not authenticated
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Disable the button to prevent double enrollment
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enrolling...';
+
+                // Enroll the user
+                await enrollInCourse(courseId, courseData[courseId]);
+
+                // Update button to show enrolled state
+                button.innerHTML = '<i class="fas fa-check"></i> Enrolled';
+                button.classList.add('enrolled');
+
+            } catch (error) {
+                console.error('Error enrolling in course:', error);
+                alert('Failed to enroll in course. Please try again.');
+                
+                // Reset button state
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-graduation-cap"></i> Enroll Now';
+            }
+        };
+
+        // Function to check enrollment status and update UI
+        async function checkEnrollmentStatus() {
+            try {
+                if (!auth.currentUser) return;
+
+                const enrolledCourses = await getEnrolledCourses();
+                const enrolledIds = enrolledCourses.map(course => course.courseId);
+
+                // Update UI for all enroll buttons
+                document.querySelectorAll('.enroll-btn').forEach(button => {
+                    const courseId = button.dataset.courseId;
+                    if (enrolledIds.includes(courseId)) {
+                        button.innerHTML = '<i class="fas fa-check"></i> Enrolled';
+                        button.classList.add('enrolled');
+                        button.disabled = true;
+                    }
+                });
+            } catch (error) {
+                console.error('Error checking enrollment status:', error);
+            }
+        }
+
+        // Check enrollment status when auth state changes
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                checkEnrollmentStatus();
+            }
+        });
+    </script>
 </body>
-</html> 
+</html>

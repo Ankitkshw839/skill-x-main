@@ -75,9 +75,10 @@
         }
 
         .course-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 1rem 0;
         }
 
         .course-card {
@@ -238,6 +239,111 @@
             font-size: 0.75rem;
             font-weight: 500;
         }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-content {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4285f4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        .course-topics {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .course-topics h4 {
+            margin: 0 0 0.5rem 0;
+            color: #202124;
+            font-size: 0.9rem;
+        }
+
+        .course-topics p {
+            margin: 0;
+            color: #5f6368;
+            font-size: 0.85rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .browse-section {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .browse-btn {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .browse-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .browse-description {
+            margin-top: 1rem;
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .course-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 1rem 0;
+        }
+
+        .course-card {
+            flex-direction: column;
+        }
+
+        .course-image {
+            width: 100%;
+            height: 200px;
+        }
     </style>
 </head>
 <body>
@@ -278,115 +384,15 @@
             </select>
         </div>
 
-        <h2 class="section-heading">
-            <i class="fas fa-play-circle"></i> Active Courses <span class="badge">2</span>
-        </h2>
-        
-        <div class="course-list">
-            <div class="course-card animate-fade-in">
-                <div class="course-image">
-                    <img src="https://img.freepik.com/free-vector/web-development-programmer-engineering-coding-website-augmented-reality-interface-screens-developer-project-engineer-programming-software-application-design-cartoon-illustration_107791-3863.jpg" alt="Web Development">
-                </div>
-                <div class="course-details">
-                    <h2>Web Development Fundamentals</h2>
-                    <p>Currently learning: <strong>CSS Flexbox & Grid Layouts</strong></p>
-                    <div class="course-meta">
-                        <div class="course-meta-item">
-                            <i class="fas fa-clock"></i> 12 hours left
-                        </div>
-                        <div class="course-meta-item">
-                            <i class="fas fa-calendar-alt"></i> Updated 2 days ago
-                        </div>
-                        <div class="course-meta-item">
-                            <i class="fas fa-signal"></i> Beginner
-                        </div>
-                    </div>
-                    <div class="progress-container">
-                        <div class="progress-info">
-                            <span>Your progress</span>
-                            <span>70%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 70%"></div>
-                        </div>
-                    </div>
-                    <a href="#" class="continue-btn">
-                        <i class="fas fa-play-circle"></i> Continue Learning
-                    </a>
-                </div>
-            </div>
-
-            <div class="course-card animate-fade-in">
-                <div class="course-image">
-                    <img src="https://img.freepik.com/free-vector/digital-marketing-team-with-laptops-light-bulb-marketing-team-metrics-marketing-team-lead-responsibilities-concept_335657-258.jpg" alt="Digital Marketing">
-                </div>
-                <div class="course-details">
-                    <h2>Digital Marketing Masterclass</h2>
-                    <p>Currently learning: <strong>Social Media Strategy Development</strong></p>
-                    <div class="course-meta">
-                        <div class="course-meta-item">
-                            <i class="fas fa-clock"></i> 18 hours left
-                        </div>
-                        <div class="course-meta-item">
-                            <i class="fas fa-calendar-alt"></i> Updated yesterday
-                        </div>
-                        <div class="course-meta-item">
-                            <i class="fas fa-signal"></i> Intermediate
-                        </div>
-                    </div>
-                    <div class="progress-container">
-                        <div class="progress-info">
-                            <span>Your progress</span>
-                            <span>45%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 45%"></div>
-                        </div>
-                    </div>
-                    <a href="#" class="continue-btn">
-                        <i class="fas fa-play-circle"></i> Continue Learning
-                    </a>
-                </div>
-            </div>
+        <div class="browse-section">
+            <button onclick="handleBrowseCourses()" class="browse-btn">
+                <i class="fas fa-compass"></i> Browse AI-Recommended Courses
+            </button>
+            <p class="browse-description">Get personalized course recommendations based on your interests and experience level</p>
         </div>
 
-        <h2 class="section-heading" style="margin-top: 3rem;">
-            <i class="fas fa-bookmark"></i> Saved For Later <span class="badge">1</span>
-        </h2>
-
-        <div class="course-list">
-            <div class="course-card animate-fade-in">
-                <div class="course-image">
-                    <img src="https://img.freepik.com/free-vector/data-extraction-concept-illustration_114360-4876.jpg" alt="Data Science">
-                </div>
-                <div class="course-details">
-                    <h2>Data Science Essentials</h2>
-                    <p>Learn Python, statistics, data visualization, and machine learning fundamentals</p>
-                    <div class="course-meta">
-                        <div class="course-meta-item">
-                            <i class="fas fa-clock"></i> 36 hours total
-                        </div>
-                        <div class="course-meta-item">
-                            <i class="fas fa-user-friends"></i> 12,845 students
-                        </div>
-                        <div class="course-meta-item">
-                            <i class="fas fa-signal"></i> Advanced
-                        </div>
-                    </div>
-                    <div class="progress-container">
-                        <div class="progress-info">
-                            <span>Your progress</span>
-                            <span>0%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <a href="#" class="continue-btn">
-                        <i class="fas fa-play-circle"></i> Start Learning
-                    </a>
-                </div>
-            </div>
+        <div id="courseList" class="course-list">
+            <!-- Courses will be dynamically added here -->
         </div>
     </div>
 
@@ -407,7 +413,12 @@
 
     <script type="module">
         import { auth, handleLogout } from './auth.js';
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+        import { generateCourseRecommendations, saveCourseRecommendations } from './courseRecommender.js';
         
+        const database = getDatabase();
+        let currentUserData = null;
+
         // Add logout button to the nav
         const nav = document.querySelector('nav');
         const logoutBtn = document.createElement('a');
@@ -417,18 +428,142 @@
         logoutBtn.addEventListener('click', handleLogout);
         nav.appendChild(logoutBtn);
 
-        // You can add additional functionality here to load the user's courses
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                // Add code here to load user's courses
-                // For now, we'll just show the empty state
-                document.querySelector('.courses-container').innerHTML = `
-                    <div class="empty-courses">
-                        <h2>No courses yet</h2>
-                        <p>Start your learning journey by exploring our course catalog</p>
-                        <a href="welcome2.html" class="btn btn-primary">Browse Courses</a>
+        // Add click handler to browse button
+        document.querySelector('.browse-btn').addEventListener('click', async () => {
+            try {
+                console.log("Browse courses clicked");
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'loading-overlay';
+                loadingDiv.innerHTML = `
+                    <div class="loading-content">
+                        <div class="spinner"></div>
+                        <p>Generating personalized course recommendations...</p>
                     </div>
                 `;
+                document.body.appendChild(loadingDiv);
+
+                // Get user data if not already loaded
+                if (!currentUserData) {
+                    currentUserData = await loadUserData(auth.currentUser.uid);
+                }
+
+                console.log("Current user data:", currentUserData);
+
+                // Prepare user preferences for AI
+                const userPreferences = {
+                    mainInterest: currentUserData.mainInterest || '',
+                    specificInterests: currentUserData.specificInterests || [],
+                    experienceLevel: currentUserData.experienceLevel || 'Beginner'
+                };
+
+                console.log("Sending preferences to AI:", userPreferences);
+
+                // Get course recommendations
+                const recommendations = await generateCourseRecommendations(userPreferences);
+                
+                console.log("Received recommendations:", recommendations);
+
+                // Save recommendations to Firebase
+                await saveCourseRecommendations(auth.currentUser.uid, recommendations);
+                
+                // Display recommendations
+                displayCourses(recommendations);
+                
+                // Remove loading overlay
+                document.body.removeChild(loadingDiv);
+                
+            } catch (error) {
+                console.error("Error in course recommendation:", error);
+                alert('Error generating course recommendations. Please try again.');
+                // Remove loading overlay in case of error
+                const loadingDiv = document.querySelector('.loading-overlay');
+                if (loadingDiv) {
+                    document.body.removeChild(loadingDiv);
+                }
+            }
+        });
+
+        async function loadUserData(userId) {
+            const userRef = ref(database, 'users/' + userId);
+            return new Promise((resolve, reject) => {
+                onValue(userRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        currentUserData = data;
+                        resolve(data);
+                    } else {
+                        reject(new Error('No user data found'));
+                    }
+                }, (error) => {
+                    reject(error);
+                });
+            });
+        }
+
+        function displayCourses(courses) {
+            const courseList = document.querySelector('#courseList');
+            courseList.innerHTML = ''; // Clear existing courses
+
+            if (!Array.isArray(courses)) {
+                console.error("Courses is not an array:", courses);
+                return;
+            }
+
+            courses.forEach(course => {
+                const courseCard = document.createElement('div');
+                courseCard.className = 'course-card animate-fade-in';
+                courseCard.innerHTML = `
+                    <div class="course-image">
+                        <img src="${course.imageUrl}" alt="${course.title}" onerror="this.src='https://img.freepik.com/free-vector/online-tutorials-concept_23-2148529858.jpg'">
+                    </div>
+                    <div class="course-details">
+                        <h2>${course.title}</h2>
+                        <p>${course.description}</p>
+                        <div class="course-meta">
+                            <div class="course-meta-item">
+                                <i class="fas fa-clock"></i> ${course.duration} weeks
+                            </div>
+                            <div class="course-meta-item">
+                                <i class="fas fa-signal"></i> ${course.difficulty}
+                            </div>
+                        </div>
+                        <div class="course-topics">
+                            <h4>Key Topics:</h4>
+                            <p>${Array.isArray(course.keyTopics) ? course.keyTopics.join(', ') : course.keyTopics}</p>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-info">
+                                <span>Your progress</span>
+                                <span>0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <a href="#" class="continue-btn">
+                            <i class="fas fa-play-circle"></i> Start Learning
+                        </a>
+                    </div>
+                `;
+                courseList.appendChild(courseCard);
+            });
+        }
+
+        // Initialize the page
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    // Load user data
+                    currentUserData = await loadUserData(user.uid);
+                    
+                    // Check if there are already recommended courses
+                    if (currentUserData.recommendedCourses) {
+                        displayCourses(currentUserData.recommendedCourses);
+                    }
+                } catch (error) {
+                    console.error("Error loading user data:", error);
+                    alert('Error loading your profile data. Please try again later.');
+                }
             }
         });
     </script>
