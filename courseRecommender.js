@@ -185,67 +185,42 @@ async function callOpenRouterAPI(userData) {
     console.log("Calling OpenRouter API with data:", userData);
     
     try {
-        console.log("Making API request to OpenRouter with model: mistralai/devstral-small:free");
+        console.log("Making API request to backend server");
         
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-                'Authorization': 'Bearer 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',
-            'HTTP-Referer': window.location.origin,
-            'X-Title': 'Simplexify Learning Platform'
-        },
-        body: JSON.stringify({
-                model: "mistralai/devstral-small:free",
-            messages: [
-                {
-                    role: "system",
-                    content: "You are an expert course advisor who provides detailed, personalized course recommendations. Always return valid JSON."
-                },
-                {
-                    role: "user",
-                    content: `Generate 10 unique course recommendations based on these preferences:
-                    Main Interest: ${userData.mainInterest}
-                    Experience Level: ${userData.experienceLevel}
-
-                    Return the response in this exact JSON format:
-                    {
-                        "courses": [
-                            {
-                                "title": "Course Title",
-                                "description": "2-3 sentences about the course",
-                                "duration": 8,
-                                "difficulty": "Beginner/Intermediate/Advanced",
-                                "keyTopics": ["topic1", "topic2", "topic3"],
-                                "learningOutcomes": ["outcome1", "outcome2", "outcome3"]
-                            }
-                        ]
-                    }
-
-                    Make sure:
-                    1. Each course title is unique and specific
-                    2. Descriptions are detailed and relevant
-                    3. Duration is in weeks (4-12 weeks)
-                    4. Key topics are specific to the course (at least 3 topics)
-                    5. Learning outcomes are measurable
-                    6. Difficulty matches user's level (${userData.experienceLevel})
-                    7. All courses relate to ${userData.mainInterest}`
+        // Now we call our backend API instead of OpenRouter directly
+        const response = await fetch('http://localhost:3000/api/course-recommendations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userData: {
+                    mainInterest: userData.mainInterest,
+                    specificInterests: userData.specificInterests || [],
+                    experienceLevel: userData.experienceLevel
                 }
-            ]
-        })
-    });
+            })
+        });
 
-    if (!response.ok) {
+        if (!response.ok) {
             const errorText = await response.text();
             console.error(`API call failed: ${response.status} ${response.statusText}`, errorText);
-        throw new Error(`API call failed: ${response.status} ${response.statusText}`);
-    }
+            throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+        }
 
-    const data = await response.json();
-        console.log("API Response received:", data);
-    return data;
+        const courses = await response.json();
+        console.log("API Response received:", courses);
+        
+        // Format the response to match what the rest of the code expects
+        return {
+            choices: [{
+                message: {
+                    content: JSON.stringify({ courses })
+                }
+            }]
+        };
     } catch (error) {
-        console.error("Error in OpenRouter API call:", error);
+        console.error("Error in API call:", error);
         throw error;
     }
 }

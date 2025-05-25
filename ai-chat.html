@@ -735,23 +735,15 @@
         
         async function callEducationAI(query) {
             try {
-                console.log("Calling OpenRouter API with query:", query);
+                console.log("Calling backend API with query:", query);
                 
-                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                const response = await fetch('http://localhost:3000/api/chat', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer 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',
-                        'HTTP-Referer': window.location.origin,
-                        'X-Title': 'Simplexify Learning Assistant'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        model: "mistralai/devstral-small:free",
                         messages: [
-                            {
-                                role: "system",
-                                content: "You are an educational AI assistant focused on helping students learn effectively. You provide clear, concise, and accurate information on educational topics. Focus on topics related to learning, education, study techniques, academic subjects, and skill development. Keep responses helpful, educational, and suitable for students. Never generate harmful, inappropriate, or non-educational content.\n\nFormat your responses using markdown:\n- Use `code` for inline code and ```code blocks``` for longer snippets\n- Use **bold** or *italic* for emphasis\n- Use bullet points and numbered lists where appropriate\n- Use [text](URL) format for links\n- Use headers with # or ## for sections\n- Keep paragraphs short and separated by blank lines\n- Use examples and analogies to explain complex concepts"
-                            },
                             {
                                 role: "user",
                                 content: query
@@ -769,11 +761,14 @@
                 const data = await response.json();
                 console.log("AI Response received:", data);
                 
-                // Extract the response content
-                if (data.choices && data.choices[0] && data.choices[0].message) {
-                    return data.choices[0].message.content;
+                // Return the response content
+                if (data && data.content) {
+                    return data.content;
+                } else if (data && typeof data === 'object') {
+                    // Handle the specific response format from our backend API
+                    return data.content || data.message || (data.role ? data.content : JSON.stringify(data));
                 } else {
-                    throw new Error("Invalid response format from AI service");
+                    return "Received an unexpected response format from the AI service.";
                 }
                 
             } catch (error) {
