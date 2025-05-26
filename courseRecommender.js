@@ -185,7 +185,7 @@ async function callOpenRouterAPI(userPreferences) {
     console.log("Calling OpenRouter API with user preferences:", userPreferences);
     const { mainInterest, specificInterests, experienceLevel } = userPreferences;
 
-    const systemPrompt = "You are an expert course recommender. Based on the user's interests and experience level, provide 5-6 course recommendations. For each course, give a concise title and a one-sentence description. Format your response as a valid JSON array of objects, where each object has 'title' and 'description' keys. Example: [{\"title\": \"Intro to Python\", \"description\": \"Learn Python basics.\"}, {\"title\": \"Web Design Fundamentals\", \"description\": \"Explore core web design principles.\"}]";
+    const systemPrompt = "You are an expert course recommender. Based on the user's main interest, specific interests, and experience level, provide a JSON array of 5 to 6 course objects. Each object should have a 'title' (string, concise and engaging) and a 'description' (string, 1-2 sentences summarizing the course). Ensure the output is ONLY the JSON array, with no other text, commentary, or markdown formatting before or after it. The JSON should be well-formed.";
     const userPromptContent = `My main interest is ${mainInterest}. My specific interests include: ${specificInterests.join(', ')}. My current experience level is ${experienceLevel}. Please recommend 5-6 courses.`;
 
     try {
@@ -195,7 +195,7 @@ async function callOpenRouterAPI(userPreferences) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer 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', // Updated API Key
+                'Authorization': 'Bearer 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', // Updated API Key
                 'HTTP-Referer': window.location.origin, // Optional: For OpenRouter to identify your site
                 'X-Title': 'Simplexify Course Recommender' // Optional: For OpenRouter to identify your app
             },
@@ -226,14 +226,25 @@ async function callOpenRouterAPI(userPreferences) {
 
         if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
             try {
-                // The content should be a stringified JSON array as per our prompt.
-                const parsedCourses = JSON.parse(data.choices[0].message.content);
-                if (Array.isArray(parsedCourses) && parsedCourses.every(c => c.title && c.description)) {
-                    console.log("Parsed AI course recommendations:", parsedCourses);
-                    return parsedCourses; // Should be an array of {title, description} objects
+                const rawContent = data.choices[0].message.content;
+                const parsedJson = JSON.parse(rawContent);
+                let coursesArray = null;
+
+                // Check if the response is an object with a 'courses' array property
+                if (parsedJson && typeof parsedJson === 'object' && Array.isArray(parsedJson.courses)) {
+                    coursesArray = parsedJson.courses;
+                } 
+                // Else, check if the response itself is an array (original expectation)
+                else if (Array.isArray(parsedJson)) {
+                    coursesArray = parsedJson;
+                }
+
+                if (coursesArray && coursesArray.every(c => c.title && c.description)) {
+                    console.log("Parsed AI course recommendations:", coursesArray);
+                    return coursesArray;
                 } else {
-                    console.error("AI response content is not a valid array of course objects:", data.choices[0].message.content);
-                    throw new Error("AI response content is not in the expected format.");
+                    console.error("AI response content is not a valid array of course objects, or not in the expected structure:", rawContent);
+                    throw new Error("AI response content is not in the expected format or structure.");
                 }
             } catch (parseError) {
                 console.error("Error parsing AI response content as JSON:", parseError, data.choices[0].message.content);
@@ -387,7 +398,7 @@ export async function generateCourseRecommendations() {
             console.warn("No courses could be generated, returning absolute fallback.");
             let fallback = JSON.parse(JSON.stringify(courseTemplates.programming.beginner));
             return fallback.map(course => ({
-                 ...course, imageUrl: getRelevantImage(course.title, course.keyTopics || [])
+                 ...course, imageUrl: getRelevantImage(course.title, course.keyTopics || []), isAIReco: false
             })).slice(0,6);
         }
         return finalCourses;
@@ -396,7 +407,7 @@ export async function generateCourseRecommendations() {
         console.error("Critical Error in generateCourseRecommendations:", error);
         let fallback = JSON.parse(JSON.stringify(courseTemplates.programming.beginner));
         return fallback.map(course => ({
-            ...course, imageUrl: getRelevantImage(course.title, course.keyTopics || [])
+            ...course, imageUrl: getRelevantImage(course.title, course.keyTopics || []), isAIReco: false
         })).slice(0,6);
     }
 }

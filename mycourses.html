@@ -675,7 +675,7 @@
                         }
                     } catch (error) {
                         console.error("Error enrolling in course:", error);
-                        alert("Failed to enroll in course. Please try again.");
+                        alert(`Failed to enroll in course. Please try again.\nError: ${error.message || 'Unknown error'}`);
                         
                         // Remove loading overlay in case of error
                         const loadingDiv = document.querySelector('.loading-overlay');

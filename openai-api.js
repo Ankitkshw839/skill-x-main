@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const API_KEY = "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";
+const API_KEY = "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";
 const BASE_URL = "https://openrouter.ai/api/v1";
 
 async function main() {
