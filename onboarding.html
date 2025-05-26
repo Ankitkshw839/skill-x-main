@@ -668,6 +668,11 @@
                     email: user.email
                 };
 
+                // Save preferences to localStorage for AI course recommendations
+                localStorage.setItem('userMainInterest', JSON.stringify(userData.mainInterest));
+                localStorage.setItem('userInterests', JSON.stringify(userData.specificInterests)); // This is an array
+                localStorage.setItem('userExperienceLevel', JSON.stringify(userData.experienceLevel));
+
                 // Save to Realtime Database
                 await set(ref(database, 'users/' + user.uid), userData);
                 
@@ -779,18 +784,61 @@
         }
 
         function nextStep(currentStep) {
-            if (currentStep === 1) {
+            if (currentStep === 1) { // User is proceeding from Step 1b (Subcategories)
                 const selectedSubcategories = getSelectedSubcategories();
                 if (selectedSubcategories.length === 0) {
-                    alert('Please select at least one specific interest');
+                    alert('Please select at least one specific interest.');
                     return;
                 }
                 document.getElementById('step1b').classList.remove('active');
-            } else {
-                document.getElementById(`step${currentStep}`).classList.remove('active');
+                document.getElementById('step2').classList.add('active');
+                updateProgress(50); // Progress after subcategories and moving to experience level
+                return;
             }
-            document.getElementById(`step${currentStep + 1}`).classList.add('active');
-            updateProgress((currentStep + 1) * 25);
+
+            if (currentStep === 4) { // User is finishing Step 4 (Goals or final step)
+                const mainInterest = document.querySelector('.interest-card.selected')?.dataset.interest;
+                const selectedSubcategories = getSelectedSubcategories(); // From Step 1b
+                const selectedLevel = getSelectedLevel(); // From Step 2
+                // const learningGoals = document.getElementById('learningGoalsInput')?.value; // If you have a goals input
+
+                if (!mainInterest) {
+                    alert('It seems the main interest was not selected. Please go back to Step 1.');
+                    // Optionally, force navigation back: prevStep(4); prevStep(3); prevStep(2); goBackToMainInterests();
+                    return;
+                }
+                if (selectedSubcategories.length === 0) {
+                    alert('Please ensure you have selected at least one specific interest in Step 1.');
+                    return;
+                }
+                if (!selectedLevel) {
+                    alert('Please ensure you have selected your experience level in Step 2.');
+                    return;
+                }
+
+                localStorage.setItem('userMainInterest', JSON.stringify(mainInterest));
+                localStorage.setItem('userInterests', JSON.stringify(selectedSubcategories));
+                localStorage.setItem('userExperienceLevel', JSON.stringify(selectedLevel));
+                // if (learningGoals) { localStorage.setItem('userLearningGoals', JSON.stringify(learningGoals)); }
+
+                alert('Onboarding complete! Your preferences have been saved.');
+                window.location.href = 'welcome2.html'; // Redirect after saving
+                return; // Stop further execution to prevent trying to show a non-existent step5
+            }
+
+            // Default behavior for other steps
+            const currentStepElement = document.getElementById(`step${currentStep}`);
+            if (currentStepElement) {
+                currentStepElement.classList.remove('active');
+            }
+            
+            const nextStepElement = document.getElementById(`step${currentStep + 1}`);
+            if (nextStepElement) {
+                nextStepElement.classList.add('active');
+            }
+            
+            // Update progress based on the actual next step number being displayed
+            updateProgress((currentStep + 1) * 25); 
         }
 
         function prevStep(currentStep) {

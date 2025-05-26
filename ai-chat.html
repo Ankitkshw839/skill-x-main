@@ -124,7 +124,9 @@
             );
             background-size: 300% 300%;
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
+            color: transparent;
             animation: gradientFlow 8s ease infinite;
             position: relative;
             display: inline-block;
@@ -741,12 +743,12 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer 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',
-                        'HTTP-Referer': window.location.origin,
+                        'Authorization': `Bearer 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`,
+                        'HTTP-Referer': 'https://simplexify.com',
                         'X-Title': 'Simplexify Learning Assistant'
                     },
                     body: JSON.stringify({
-                        model: "mistralai/devstral-small:free",
+                        model: "openai/gpt-3.5-turbo",
                         messages: [
                             {
                                 role: "system",
@@ -763,6 +765,15 @@
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error(`API call failed: ${response.status} ${response.statusText}`, errorText);
+                    console.error('Request details:', {
+                        url: 'https://openrouter.ai/api/v1/chat/completions',
+                        model: 'openai/gpt-3.5-turbo',
+                        headers: {
+                            'Authorization': 'Bearer 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'.substring(0, 15) + '...',
+                            'HTTP-Referer': 'https://simplexify.com',
+                            'X-Title': 'Simplexify Learning Assistant'
+                        }
+                    });
                     throw new Error(`API call failed: ${response.status} ${response.statusText}`);
                 }
 
