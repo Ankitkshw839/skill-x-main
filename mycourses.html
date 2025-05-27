@@ -675,7 +675,7 @@
                         }
                     } catch (error) {
                         console.error("Error enrolling in course:", error);
-                        alert("Failed to enroll in course. Please try again.");
+                        alert(`Failed to enroll in course. Please try again.\nError: ${error.message || 'Unknown error'}`);
                         
                         // Remove loading overlay in case of error
                         const loadingDiv = document.querySelector('.loading-overlay');
@@ -689,24 +689,62 @@
 
         // Initialize the page
         auth.onAuthStateChanged(async (user) => {
+            const courseList = document.querySelector('#courseList');
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.className = 'loading-message'; // Use a class for styling
+            loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading your personalized courses...';
+            
+            if (courseList.firstChild) {
+                courseList.insertBefore(loadingIndicator, courseList.firstChild);
+            } else {
+                courseList.appendChild(loadingIndicator);
+            }
+
             if (user) {
+                console.log("User authenticated, fetching recommendations.");
                 try {
-                    // Load user data
-                    currentUserData = await loadUserData(user.uid);
-                    
-                    // Check if there are already recommended courses
-                    if (currentUserData.recommendedCourses && Array.isArray(currentUserData.recommendedCourses) && currentUserData.recommendedCourses.length > 0) {
-                        displayCourses(currentUserData.recommendedCourses);
+                    // Attempt to load general user data (e.g., for display name), but don't let it block recommendations
+                    try {
+                        currentUserData = await loadUserData(user.uid);
+                        console.log("User data loaded:", currentUserData);
+                        // You can update UI elements with user's name here if needed
+                        const userNameElement = document.getElementById('user-name-display'); // Assuming you have an element for this
+                        if (userNameElement && currentUserData && currentUserData.name) {
+                            userNameElement.textContent = currentUserData.name;
+                        }
+                    } catch (userDataError) {
+                        console.warn("Could not load user profile data, proceeding with recommendations:", userDataError);
+                        currentUserData = {}; // Ensure currentUserData is an object
                     }
+
+                    const recommendedCourses = await generateCourseRecommendations(); // Fetches from localStorage and AI
+                    
+                    if (loadingIndicator && loadingIndicator.parentNode) {
+                        loadingIndicator.parentNode.removeChild(loadingIndicator);
+                    }
+                    displayCourses(recommendedCourses);
+
                 } catch (error) {
-                    console.error("Error loading user data:", error);
-                    console.log("Will generate recommendations when user clicks the browse button");
+                    console.error("Error fetching or displaying recommendations:", error);
+                    if (loadingIndicator && loadingIndicator.parentNode) {
+                        loadingIndicator.parentNode.removeChild(loadingIndicator);
+                    }
+                    courseList.innerHTML = `<div class="empty-courses"><i class="fas fa-exclamation-circle"></i><p>Oops! We couldn't load your courses right now. Please try again later or <a href='onboarding.html'>update your preferences</a>.</p></div>`;
                 }
             } else {
-                // Handle not logged in state if needed
-                console.log("User not logged in");
+                console.log("User not logged in. Displaying prompt.");
+                if (loadingIndicator && loadingIndicator.parentNode) {
+                    loadingIndicator.parentNode.removeChild(loadingIndicator);
+                }
+                courseList.innerHTML = `<div class="empty-courses auth-prompt">
+                                            <i class="fas fa-user-lock"></i>
+                                            <p>Please <a href="auth.html">log in or sign up</a> to see your personalized course recommendations.</p>
+                                            <p>New here? <a href="onboarding.html">Tell us your interests</a> to get started!</p>
+                                        </div>`;
             }
         });
     </script>
+    <script src="./courseRecommender.js"></script>
+    <script src="./chatbot.js"></script>
 </body>
 </html>

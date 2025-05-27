@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simplexify AI Chat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f7;
+            color: #333;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+        
+        .chat-header {
+            padding: 1rem;
+            background: #3366ED;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .chat-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            max-width: 80%;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .user-message .avatar {
+            background-color: #3366ED;
+        }
+        
+        .message:not(.user-message) .avatar {
+            background-color: #5ac8fa;
+        }
+        
+        .message-content {
+            background-color: #f0f0f0;
+            padding: 0.75rem 1rem;
+            border-radius: 18px;
+            border-top-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-message .message-content {
+            background-color: #e1f0ff;
+            border-radius: 18px;
+            border-top-right-radius: 4px;
+        }
+        
+        .chat-footer {
+            padding: 1rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: white;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 24px;
+            resize: none;
+            outline: none;
+            font-size: 1rem;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        .chat-input:focus {
+            border-color: #3366ED;
+        }
+        
+        .send-button {
+            background-color: #3366ED;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .send-button:hover {
+            background-color: #2855d1;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 1rem;
+            background-color: #f0f0f0;
+            border-radius: 18px;
+            width: fit-content;
+            margin-left: 50px;
+        }
+        
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background-color: #999;
+            border-radius: 50%;
+            display: inline-block;
+            animation: typing 1.4s infinite both;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0); }
+        }
+        
+        /* Markdown-like styling for AI responses */
+        .message-content pre {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            border-left: 3px solid #3366ED;
+        }
+        
+        .message-content code {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .message-content ul, .message-content ol {
+            padding-left: 1.5rem;
+            margin: 0.5rem 0;
+        }
+        
+        .message-content li {
+            margin-bottom: 0.3rem;
+        }
+        
+        .message-content p {
+            margin-bottom: 0.75rem;
+        }
+        
+        .message-content h1, .message-content h2, .message-content h3 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .message-content a {
+            color: #3366ED;
+            text-decoration: none;
+        }
+        
+        .message-content a:hover {
+            text-decoration: underline;
+        }
+        
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .suggestion {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 0.5rem 1rem;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .suggestion:hover {
+            background-color: #f0f8ff;
+            border-color: #3366ED;
+        }
+        
+        .api-status {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        
+        .api-status.success {
+            background-color: #e7f7e7;
+            color: #2e7d32;
+        }
+        
+        .api-status.error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h2>
+                    <i class="fas fa-robot"></i>
+                    Simplexify AI Assistant
+                </h2>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="message">
+                    <div class="avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        Hello! I'm your educational AI assistant. I can help with study techniques, explain concepts, recommend learning resources, or answer questions about any academic subject. What would you like to learn today?
+                    </div>
+                </div>
+
+                <div class="suggestion-chips">
+                    <div class="suggestion">How can I improve my study habits?</div>
+                    <div class="suggestion">Explain the concept of machine learning</div>
+                    <div class="suggestion">What are effective note-taking techniques?</div>
+                    <div class="suggestion">Recommend resources for learning Python</div>
+                </div>
+            </div>
+
+            <div class="chat-footer">
+                <textarea class="chat-input" id="userInput" placeholder="Type your message..." rows="1"></textarea>
+                <button class="send-button" id="sendButton">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div id="apiStatus" class="api-status" style="display: none;"></div>
+    </div>
+
+    <script>
+        // DOM elements
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const apiStatus = document.getElementById('apiStatus');
+        
+        // Auto-resize textarea
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            const maxHeight = 120;
+            const newHeight = Math.min(this.scrollHeight, maxHeight);
+            this.style.height = newHeight + 'px';
+            
+            if (this.scrollHeight > maxHeight) {
+                this.style.overflowY = 'auto';
+            } else {
+                this.style.overflowY = 'hidden';
+            }
+        });
+        
+        // Add event listeners
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Add event listeners to suggestions
+        document.querySelectorAll('.suggestion').forEach(suggestion => {
+            suggestion.addEventListener('click', () => {
+                userInput.value = suggestion.textContent;
+                userInput.dispatchEvent(new Event('input'));
+                sendMessage();
+            });
+        });
+        
+        // Check API status on page load
+        window.addEventListener('load', checkApiStatus);
+        
+        async function checkApiStatus() {
+            try {
+                const response = await fetch('https://openrouter.ai/api/v1/auth/key', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer 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'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    apiStatus.textContent = `API Connected: ${data.name || 'API Key Valid'}`;
+                    apiStatus.className = 'api-status success';
+                    apiStatus.style.display = 'block';
+                } else {
+                    const errorText = await response.text();
+                    apiStatus.textContent = `API Error: ${response.status} ${response.statusText}`;
+                    apiStatus.className = 'api-status error';
+                    apiStatus.style.display = 'block';
+                    console.error('API Status Check Failed:', errorText);
+                }
+            } catch (error) {
+                apiStatus.textContent = `API Connection Error: ${error.message}`;
+                apiStatus.className = 'api-status error';
+                apiStatus.style.display = 'block';
+                console.error('API Status Check Error:', error);
+            }
+        }
+        
+        async function callAI(query) {
+            try {
+                console.log("Calling OpenRouter API with query:", query);
+                
+                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer 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`,
+                        'HTTP-Referer': 'https://simplexify.com',
+                        'X-Title': 'Simplexify Learning Assistant'
+                    },
+                    body: JSON.stringify({
+                        model: "openai/gpt-3.5-turbo",
+                        messages: [
+                            {
+                                role: "system",
+                                content: "You are an educational AI assistant focused on helping students learn effectively. You provide clear, concise, and accurate information on educational topics. Focus on topics related to learning, education, study techniques, academic subjects, and skill development. Keep responses helpful, educational, and suitable for students. Never generate harmful, inappropriate, or non-educational content.\n\nFormat your responses using markdown:\n- Use `code` for inline code and ```code blocks``` for longer snippets\n- Use **bold** or *italic* for emphasis\n- Use bullet points and numbered lists where appropriate\n- Use [text](URL) format for links\n- Use headers with # or ## for sections\n- Keep paragraphs short and separated by blank lines\n- Use examples and analogies to explain complex concepts"
+                            },
+                            {
+                                role: "user",
+                                content: query
+                            }
+                        ]
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`API call failed: ${response.status} ${response.statusText}`, errorText);
+                    throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log("AI Response received:", data);
+                
+                if (data.choices && data.choices[0] && data.choices[0].message) {
+                    return data.choices[0].message.content;
+                } else {
+                    throw new Error("Invalid response format from AI service");
+                }
+                
+            } catch (error) {
+                console.error("Error in AI API call:", error);
+                return "I'm having trouble connecting to my knowledge base right now. Please try again in a moment.";
+            }
+        }
+        
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, true);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            
+            // Show typing indicator
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+            chatMessages.appendChild(typingIndicator);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            try {
+                // Get AI response
+                const aiResponse = await callAI(message);
+                
+                // Remove typing indicator
+                chatMessages.removeChild(typingIndicator);
+                
+                // Add AI response
+                addMessage(aiResponse, false);
+                
+            } catch (error) {
+                console.error("Error getting AI response:", error);
+                
+                // Remove typing indicator
+                if (typingIndicator.parentNode === chatMessages) {
+                    chatMessages.removeChild(typingIndicator);
+                }
+                
+                // Add error message
+                addMessage("I'm having trouble responding right now. Please try again later.", false);
+            }
+            
+            // Scroll to bottom again
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function addMessage(text, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : ''}`;
+            
+            // Format the content if it's from the AI (not user)
+            let formattedText = text;
+            if (!isUser) {
+                // Convert code blocks
+                formattedText = formattedText.replace(/```([^`]+)```/g, '<pre>$1</pre>');
+                
+                // Convert inline code
+                formattedText = formattedText.replace(/`([^`]+)`/g, '<code>$1</code>');
+                
+                // Convert bold and italic
+                formattedText = formattedText.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                formattedText = formattedText.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+                
+                // Convert lists
+                formattedText = formattedText.replace(/^\s*[\-\*]\s+(.+)$/gm, '<li>$1</li>');
+                formattedText = formattedText.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+                
+                // Convert numbered lists
+                formattedText = formattedText.replace(/^\s*(\d+)\.\s+(.+)$/gm, '<li>$2</li>');
+                formattedText = formattedText.replace(/(<li>.*<\/li>)/s, '<ol>$1</ol>');
+                
+                // Convert links
+                formattedText = formattedText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+                
+                // Convert headers
+                formattedText = formattedText.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+                formattedText = formattedText.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+                formattedText = formattedText.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+                
+                // Convert paragraphs
+                const paragraphs = formattedText.split('\n\n');
+                if (paragraphs.length > 1) {
+                    formattedText = paragraphs.map(p => {
+                        if (!p.startsWith('<h') && !p.startsWith('<ul') && !p.startsWith('<ol') && !p.startsWith('<pre')) {
+                            return `<p>${p}</p>`;
+                        }
+                        return p;
+                    }).join('');
+                }
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="avatar">
+                    <i class="${isUser ? 'fas fa-user' : 'fas fa-robot'}"></i>
+                </div>
+                <div class="message-content">
+                    ${isUser ? text : formattedText}
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+        }
+    </script>
+</body>
+</html>

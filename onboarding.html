@@ -594,7 +594,7 @@
             </div>
             <div class="navigation-buttons">
                 <button class="nav-btn back-btn" onclick="prevStep(4)">Back</button>
-                <button class="nav-btn next-btn" onclick="submitForm()">Finish</button>
+                <button class="nav-btn next-btn" onclick="nextStep(4)">Finish</button>
             </div>
         </div>
     </div>
@@ -621,6 +621,14 @@
         const analytics = getAnalytics(app);
         const auth = getAuth(app);
         const database = getDatabase(app);
+
+        // Expose Firebase services and functions to the global scope for use in other scripts
+        window.firebaseServices = {
+            auth: auth, // The initialized auth instance
+            database: database, // The initialized database instance
+            ref: ref,       // The ref function
+            set: set        // The set function
+        };
 
         // Check authentication state
         onAuthStateChanged(auth, (user) => {
@@ -667,6 +675,11 @@
                     userId: user.uid,
                     email: user.email
                 };
+
+                // Save preferences to localStorage for AI course recommendations
+                localStorage.setItem('userMainInterest', JSON.stringify(userData.mainInterest));
+                localStorage.setItem('userInterests', JSON.stringify(userData.specificInterests)); // This is an array
+                localStorage.setItem('userExperienceLevel', JSON.stringify(userData.experienceLevel));
 
                 // Save to Realtime Database
                 await set(ref(database, 'users/' + user.uid), userData);
@@ -778,19 +791,125 @@
             return selectedCard ? selectedCard.dataset.level : null;
         }
 
-        function nextStep(currentStep) {
-            if (currentStep === 1) {
+        async function nextStep(currentStep) {
+            if (currentStep === 1) { // User is proceeding from Step 1b (Subcategories) to Step 2 (Experience)
                 const selectedSubcategories = getSelectedSubcategories();
                 if (selectedSubcategories.length === 0) {
-                    alert('Please select at least one specific interest');
+                    alert('Please select at least one specific interest.');
                     return;
                 }
+                // Logic to save mainInterest and specificInterests to localStorage if needed here, though typically done at the end.
                 document.getElementById('step1b').classList.remove('active');
-            } else {
-                document.getElementById(`step${currentStep}`).classList.remove('active');
+                document.getElementById('step2').classList.add('active');
+                updateProgress(50); // Progress after subcategories, moving to experience level
+                return;
             }
-            document.getElementById(`step${currentStep + 1}`).classList.add('active');
-            updateProgress((currentStep + 1) * 25);
+
+            if (currentStep === 2) { // User is proceeding from Step 2 (Experience Level) to Step 3 (Location)
+                const selectedLevel = getSelectedLevel();
+                if (!selectedLevel) {
+                    alert('Please select your experience level.');
+                    return;
+                }
+                localStorage.setItem('userExperienceLevel', JSON.stringify(selectedLevel)); // Save experience level immediately
+                
+                document.getElementById('step2').classList.remove('active');
+                document.getElementById('step3').classList.add('active');
+                updateProgress(75); // Progress after experience level, moving to location/personal info
+                return;
+            }
+
+            if (currentStep === 3) { // User is proceeding from Step 3 (Location) to Step 4 (Personal Info)
+                // Optional: Validate location if necessary
+                // const country = document.getElementById('country').value;
+                // const city = document.getElementById('city').value;
+                // if (!country || !city) {
+                //     alert('Please select your location.');
+                //     return;
+                // }
+                // localStorage.setItem('userCountry', JSON.stringify(country));
+                // localStorage.setItem('userCity', JSON.stringify(city));
+
+                document.getElementById('step3').classList.remove('active');
+                document.getElementById('step4').classList.add('active');
+                updateProgress(100); // Progress after location, moving to final personal info/summary
+                return;
+            }
+
+            if (currentStep === 4) { // User is finishing Step 4 (Personal Info / Final Step)
+                const mainInterest = document.querySelector('.interest-card.selected')?.dataset.interest;
+                const selectedSubcategories = getSelectedSubcategories(); // From Step 1b
+                const selectedLevel = getSelectedLevel(); // From Step 2 (already saved to localStorage in step 2's logic)
+                // const country = JSON.parse(localStorage.getItem('userCountry')); // If saved from step 3
+                // const city = JSON.parse(localStorage.getItem('userCity')); // If saved from step 3
+                // Add any personal info from Step 4 inputs here if needed
+
+                // Final validation before saving everything
+                if (!mainInterest) {
+                    alert('It seems the main interest was not selected. Please go back to Step 1.');
+                    return;
+                }
+                if (selectedSubcategories.length === 0) {
+                    alert('Please ensure you have selected at least one specific interest in Step 1.');
+                    return;
+                }
+                if (!selectedLevel) { // Should have been caught in Step 2, but good to double check
+                    alert('Please ensure you have selected your experience level in Step 2.');
+                    return;
+                }
+
+                // Save/Update all preferences to localStorage (some might be redundant but ensures consistency)
+                localStorage.setItem('userMainInterest', JSON.stringify(mainInterest));
+                localStorage.setItem('userInterests', JSON.stringify(selectedSubcategories));
+                // userExperienceLevel already saved in step 2
+
+                // Save to Firebase Realtime Database
+                const fbServices = window.firebaseServices;
+                if (fbServices && fbServices.auth && fbServices.database && fbServices.ref && fbServices.set) {
+                    const user = fbServices.auth.currentUser;
+                    if (user) {
+                        const userId = user.uid;
+                        const preferencesToSave = {
+                            mainInterest: mainInterest,
+                            specificInterests: selectedSubcategories,
+                            experienceLevel: selectedLevel,
+                            // country: country, // If collecting location
+                            // city: city,       // If collecting location
+                            lastUpdated: new Date().toISOString()
+                        };
+                        try {
+                            await fbServices.set(fbServices.ref(fbServices.database, `users/${userId}/onboardingPreferences`), preferencesToSave);
+                            console.log('Onboarding preferences saved to Firebase for user:', userId);
+                        } catch (error) {
+                            console.error('Error saving onboarding preferences to Firebase:', error);
+                            alert('Your preferences were saved locally, but there was an issue saving them to your account. Please try again later or contact support.');
+                        }
+                    } else {
+                        console.warn('User not logged in during onboarding completion. Preferences saved to localStorage only.');
+                    }
+                } else {
+                    console.error("Firebase services not properly initialized on window object. Cannot save to Firebase.");
+                    alert("A critical error occurred with Firebase setup. Your preferences could not be saved to your account at this time, only locally.");
+                }
+
+                alert('Onboarding complete! Your preferences have been saved.');
+                window.location.href = 'welcome2.html'; // Redirect after saving
+                return; // Stop further execution
+            }
+
+            // Default behavior for other steps (should not be reached if using specific step logic above)
+            // This part is more of a fallback if a step number is passed that isn't 1, 2, 3, or 4 for 'next'
+            const currentStepElement = document.getElementById(`step${currentStep}`);
+            if (currentStepElement) {
+                currentStepElement.classList.remove('active');
+            }
+            const nextStepElement = document.getElementById(`step${currentStep + 1}`);
+            if (nextStepElement) {
+                nextStepElement.classList.add('active');
+                updateProgress((currentStep + 1) * 25); 
+            } else {
+                console.warn("Tried to go to a next step that doesn't exist: ", currentStep + 1);
+            }
         }
 
         function prevStep(currentStep) {
@@ -866,5 +985,6 @@
             }
         }
     </script>
+    <script src="./chatbot.js"></script>
 </body>
 </html> 

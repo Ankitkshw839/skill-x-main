@@ -181,205 +181,234 @@ const courseTemplates = {
     }
 };
 
-async function callOpenRouterAPI(userData) {
-    console.log("Calling OpenRouter API with data:", userData);
-    
+async function callOpenRouterAPI(userPreferences) {
+    console.log("Calling OpenRouter API with user preferences:", userPreferences);
+    const { mainInterest, specificInterests, experienceLevel } = userPreferences;
+
+    const systemPrompt = "You are an expert course recommender. Based on the user's main interest, specific interests, and experience level, provide a JSON array of 5 to 6 course objects. Each object should have a 'title' (string, concise and engaging) and a 'description' (string, 1-2 sentences summarizing the course). Ensure the output is ONLY the JSON array, with no other text, commentary, or markdown formatting before or after it. The JSON should be well-formed.";
+    const userPromptContent = `My main interest is ${mainInterest}. My specific interests include: ${specificInterests.join(', ')}. My current experience level is ${experienceLevel}. Please recommend 5-6 courses.`;
+
     try {
-        console.log("Making API request to OpenRouter with model: mistralai/devstral-small:free");
+        console.log("Making API request to OpenRouter with model: openai/gpt-3.5-turbo");
         
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-                'Authorization': 'Bearer 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',
-            'HTTP-Referer': window.location.origin,
-            'X-Title': 'Simplexify Learning Platform'
-        },
-        body: JSON.stringify({
-                model: "mistralai/devstral-small:free",
-            messages: [
-                {
-                    role: "system",
-                    content: "You are an expert course advisor who provides detailed, personalized course recommendations. Always return valid JSON."
-                },
-                {
-                    role: "user",
-                    content: `Generate 10 unique course recommendations based on these preferences:
-                    Main Interest: ${userData.mainInterest}
-                    Experience Level: ${userData.experienceLevel}
-
-                    Return the response in this exact JSON format:
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer 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',
+                'HTTP-Referer': window.location.origin, // Optional: For OpenRouter to identify your site
+                'X-Title': 'Simplexify Course Recommender' // Optional: For OpenRouter to identify your app
+            },
+            body: JSON.stringify({
+                model: "openai/gpt-3.5-turbo", // Using a generally good model, can be changed
+                messages: [
                     {
-                        "courses": [
-                            {
-                                "title": "Course Title",
-                                "description": "2-3 sentences about the course",
-                                "duration": 8,
-                                "difficulty": "Beginner/Intermediate/Advanced",
-                                "keyTopics": ["topic1", "topic2", "topic3"],
-                                "learningOutcomes": ["outcome1", "outcome2", "outcome3"]
-                            }
-                        ]
+                        role: "system",
+                        content: systemPrompt
+                    },
+                    {
+                        role: "user",
+                        content: userPromptContent
                     }
+                ],
+                response_format: { type: "json_object" } // Requesting JSON output if model supports it
+            })
+        });
 
-                    Make sure:
-                    1. Each course title is unique and specific
-                    2. Descriptions are detailed and relevant
-                    3. Duration is in weeks (4-12 weeks)
-                    4. Key topics are specific to the course (at least 3 topics)
-                    5. Learning outcomes are measurable
-                    6. Difficulty matches user's level (${userData.experienceLevel})
-                    7. All courses relate to ${userData.mainInterest}`
-                }
-            ]
-        })
-    });
-
-    if (!response.ok) {
+        if (!response.ok) {
             const errorText = await response.text();
-            console.error(`API call failed: ${response.status} ${response.statusText}`, errorText);
-        throw new Error(`API call failed: ${response.status} ${response.statusText}`);
-    }
+            console.error(`OpenRouter API call failed: ${response.status} ${response.statusText}`, errorText);
+            throw new Error(`API call failed: ${response.status} ${response.statusText}. Details: ${errorText}`);
+        }
 
-    const data = await response.json();
-        console.log("API Response received:", data);
-    return data;
+        const data = await response.json();
+        console.log("AI Response (raw):", data);
+
+        if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+            try {
+                const rawContent = data.choices[0].message.content;
+                const parsedJson = JSON.parse(rawContent);
+                let coursesArray = null;
+
+                // Check if the response is an object with a 'courses' array property
+                if (parsedJson && typeof parsedJson === 'object' && Array.isArray(parsedJson.courses)) {
+                    coursesArray = parsedJson.courses;
+                } 
+                // Else, check if the response itself is an array (original expectation)
+                else if (Array.isArray(parsedJson)) {
+                    coursesArray = parsedJson;
+                }
+
+                if (coursesArray && coursesArray.every(c => c.title && c.description)) {
+                    console.log("Parsed AI course recommendations:", coursesArray);
+                    return coursesArray;
+                } else {
+                    console.error("AI response content is not a valid array of course objects, or not in the expected structure:", rawContent);
+                    throw new Error("AI response content is not in the expected format or structure.");
+                }
+            } catch (parseError) {
+                console.error("Error parsing AI response content as JSON:", parseError, data.choices[0].message.content);
+                throw new Error("Failed to parse AI recommendations.");
+            }
+        } else {
+            console.error("Invalid response structure from OpenRouter AI service:", data);
+            throw new Error("Invalid response structure from AI service.");
+        }
+
     } catch (error) {
-        console.error("Error in OpenRouter API call:", error);
-        throw error;
+        console.error("Error in callOpenRouterAPI:", error);
+        return null; // Return null to indicate failure, allowing fallback
     }
 }
 
-export async function generateCourseRecommendations(userData) {
-    try {
-        console.log("Generating recommendations for:", userData);
+export async function generateCourseRecommendations() {
+    let mainInterest, specificInterests, experienceLevel;
+    let aiRecommendedCourses = null;
 
-        const apiResponse = await callOpenRouterAPI(userData);
-        
-        // Extract and validate the courses from the response
-        let courses;
-        try {
-            const content = apiResponse.choices[0].message.content;
-            
-            // Sometimes the API might return content with markdown code blocks, let's handle that
-            let jsonContent = content;
-            if (content.includes("```json")) {
-                jsonContent = content.split("```json")[1].split("```")[0].trim();
-            } else if (content.includes("```")) {
-                jsonContent = content.split("```")[1].split("```")[0].trim();
-            }
-            
-            // Try to parse the JSON
-            const parsed = JSON.parse(jsonContent);
-            courses = parsed.courses || [];
-            
-            if (!Array.isArray(courses) || courses.length === 0) {
-                console.error("No valid courses in API response:", parsed);
-                
-                // Fall back to template courses if available
-                if (userData.mainInterest && userData.experienceLevel && 
-                    courseTemplates[userData.mainInterest.toLowerCase()] && 
-                    courseTemplates[userData.mainInterest.toLowerCase()][userData.experienceLevel.toLowerCase()]) {
-                    
-                    console.log("Falling back to template courses");
-                    courses = courseTemplates[userData.mainInterest.toLowerCase()][userData.experienceLevel.toLowerCase()];
-                } else {
-                    // Use programming beginner as ultimate fallback
-                    console.log("Using default fallback courses");
-                    courses = courseTemplates.programming.beginner;
-                }
-            }
-        } catch (error) {
-            console.error("Error parsing API response:", error, "Response:", apiResponse);
-            
-            // Fall back to template courses
-            if (userData.mainInterest && userData.experienceLevel && 
-                courseTemplates[userData.mainInterest.toLowerCase()] && 
-                courseTemplates[userData.mainInterest.toLowerCase()][userData.experienceLevel.toLowerCase()]) {
-                
-                console.log("Falling back to template courses after parse error");
-                courses = courseTemplates[userData.mainInterest.toLowerCase()][userData.experienceLevel.toLowerCase()];
-            } else {
-                // Use programming beginner as ultimate fallback
-                console.log("Using default fallback courses after parse error");
-                courses = courseTemplates.programming.beginner;
+    try {
+        // 1. Retrieve user preferences from localStorage
+        const storedMainInterest = localStorage.getItem('userMainInterest');
+        const storedSpecificInterests = localStorage.getItem('userInterests');
+        const storedExperienceLevel = localStorage.getItem('userExperienceLevel');
+
+        if (storedMainInterest && storedSpecificInterests && storedExperienceLevel) {
+            try {
+                mainInterest = JSON.parse(storedMainInterest);
+                specificInterests = JSON.parse(storedSpecificInterests); // Should be an array
+                experienceLevel = JSON.parse(storedExperienceLevel);
+                console.log("Retrieved from localStorage:", { mainInterest, specificInterests, experienceLevel });
+            } catch (e) {
+                console.error("Error parsing preferences from localStorage:", e);
+                // Proceed with undefined preferences, leading to template fallback
             }
         }
 
-        // Validate and clean each course, and add relevant images
-        const validatedCourses = courses.map(course => {
-            const cleanedCourse = {
-                title: String(course.title || '').trim(),
-                description: String(course.description || '').trim(),
-                duration: Number(course.duration) || 8,
-                difficulty: String(course.difficulty || userData.experienceLevel).trim(),
-                keyTopics: Array.isArray(course.keyTopics) ? 
-                    course.keyTopics.map(topic => String(topic).trim()) : [],
-                learningOutcomes: Array.isArray(course.learningOutcomes) ? 
-                    course.learningOutcomes.map(outcome => String(outcome).trim()) : []
-            };
+        // 2. Call OpenRouter API if preferences are valid
+        if (mainInterest && Array.isArray(specificInterests) && specificInterests.length > 0 && experienceLevel) {
+            const userPreferencesForAPI = { mainInterest, specificInterests, experienceLevel };
+            aiRecommendedCourses = await callOpenRouterAPI(userPreferencesForAPI);
+        } else {
+            console.log("User preferences not found or invalid in localStorage. Proceeding with template-based recommendations.");
+        }
 
-            // Add relevant image based on course content
-            cleanedCourse.imageUrl = getRelevantImage(
-                cleanedCourse.title,
-                cleanedCourse.keyTopics
-            );
+        let coursesToProcess = [];
 
-            return cleanedCourse;
-        });
+        // 3. Process AI recommendations if available
+        if (aiRecommendedCourses && Array.isArray(aiRecommendedCourses) && aiRecommendedCourses.length > 0) {
+            console.log("Processing AI recommended courses:", aiRecommendedCourses);
+            coursesToProcess = aiRecommendedCourses.map(aiCourse => ({
+                title: String(aiCourse.title || 'Untitled Course').trim(),
+                description: String(aiCourse.description || 'No description available.').trim(),
+                imageUrl: getRelevantImage(aiCourse.title, []), // Pass empty array for topics for now
+                duration: 8, // Default duration
+                difficulty: experienceLevel || 'Beginner', // Use stored experience level or default
+                keyTopics: [], // Default
+                learningOutcomes: [], // Default
+                isAIReco: true // Flag to identify AI recommended courses
+            }));
+        } else {
+            console.log("AI recommendations not available or empty. Falling back to templates.");
+            const interestKey = mainInterest ? mainInterest.toLowerCase() : 'programming';
+            const levelKey = experienceLevel ? experienceLevel.toLowerCase() : 'beginner';
 
-        // Remove any duplicates based on title
+            let templateSource = courseTemplates.programming.beginner; // Ultimate fallback
+            if (courseTemplates[interestKey]) {
+                if (courseTemplates[interestKey][levelKey]) {
+                    templateSource = courseTemplates[interestKey][levelKey];
+                } else if (courseTemplates[interestKey]['beginner']) {
+                    templateSource = courseTemplates[interestKey]['beginner'];
+                }
+            }
+            coursesToProcess = JSON.parse(JSON.stringify(templateSource)); // Deep copy to avoid modifying templates
+            
+            coursesToProcess = coursesToProcess.map(course => ({
+                ...course,
+                title: String(course.title || 'Untitled Course').trim(),
+                description: String(course.description || 'No description available.').trim(),
+                imageUrl: getRelevantImage(course.title, course.keyTopics || []),
+                duration: course.duration || 8,
+                difficulty: course.difficulty || levelKey,
+                keyTopics: course.keyTopics || [],
+                learningOutcomes: course.learningOutcomes || [],
+                isAIReco: false
+            }));
+        }
+
+        const validatedCourses = coursesToProcess.map(course => ({
+            title: String(course.title || '').trim(),
+            description: String(course.description || '').trim(),
+            duration: Number(course.duration) || 8,
+            difficulty: String(course.difficulty || experienceLevel || 'Beginner').trim(),
+            keyTopics: Array.isArray(course.keyTopics) ?
+                course.keyTopics.map(topic => String(topic).trim()) : [],
+            learningOutcomes: Array.isArray(course.learningOutcomes) ?
+                course.learningOutcomes.map(outcome => String(outcome).trim()) : [],
+            imageUrl: course.imageUrl || getRelevantImage(course.title, course.keyTopics || [])
+        }));
+
         const uniqueCourses = validatedCourses.filter((course, index, self) =>
-            index === self.findIndex((c) => c.title === course.title)
+            index === self.findIndex((c) => c.title.toLowerCase() === course.title.toLowerCase())
         );
 
-        // Ensure we have at least some courses, pad with templates if needed
-        let finalCourses = uniqueCourses.slice(0, 10);
-        
-        if (finalCourses.length < 3) {
-            console.log("Not enough courses generated, adding fallback courses");
+        let finalCourses = uniqueCourses.slice(0, 6);
+
+        if (finalCourses.length < 5 && !aiRecommendedCourses) { // Only pad if AI wasn't used or failed, and we have less than 5
+            console.log("Not enough courses, attempting to pad with more templates.");
+            let additionalTemplates = [];
+            const interestKey = mainInterest ? mainInterest.toLowerCase() : 'programming';
+            const levelKey = experienceLevel ? experienceLevel.toLowerCase() : 'beginner';
             
-            // Add some template courses if we don't have enough
-            let additionalCourses = [];
-            if (userData.mainInterest && courseTemplates[userData.mainInterest.toLowerCase()]) {
-                const levelCourses = courseTemplates[userData.mainInterest.toLowerCase()][userData.experienceLevel.toLowerCase()] || 
-                                    courseTemplates[userData.mainInterest.toLowerCase()].beginner;
-                additionalCourses = levelCourses || [];
-            } else {
-                additionalCourses = courseTemplates.programming.beginner;
+            // Try to get more templates from other levels or a default interest
+            if (courseTemplates[interestKey]) {
+                Object.keys(courseTemplates[interestKey]).forEach(level => {
+                    if (level !== levelKey) additionalTemplates.push(...courseTemplates[interestKey][level]);
+                });
             }
-            
-            // Add template courses until we have at least 5 courses
-            const existingTitles = finalCourses.map(c => c.title);
-            for (const course of additionalCourses) {
-                if (!existingTitles.includes(course.title)) {
-                    const templateCourse = { ...course };
-                    templateCourse.imageUrl = getRelevantImage(
-                        templateCourse.title,
-                        templateCourse.keyTopics
-                    );
-                    finalCourses.push(templateCourse);
-                    existingTitles.push(templateCourse.title);
-                    
-                    if (finalCourses.length >= 5) break;
+            if (interestKey !== 'programming' && courseTemplates.programming) { // Add general programming if not already the main interest
+                 additionalTemplates.push(...courseTemplates.programming.beginner);
+                 additionalTemplates.push(...courseTemplates.programming.intermediate);
+            }
+            additionalTemplates = JSON.parse(JSON.stringify(additionalTemplates)); // Deep copy
+
+            const existingTitles = finalCourses.map(c => c.title.toLowerCase());
+            for (const course of additionalTemplates) {
+                if (finalCourses.length >= 6) break;
+                if (!existingTitles.includes(String(course.title || '').toLowerCase())) {
+                    finalCourses.push({
+                        title: String(course.title || 'Untitled Course').trim(),
+                        description: String(course.description || 'No description available.').trim(),
+                        imageUrl: getRelevantImage(course.title, course.keyTopics || []),
+                        duration: course.duration || 8,
+                        difficulty: course.difficulty || 'Beginner',
+                        keyTopics: course.keyTopics || [],
+                        learningOutcomes: course.learningOutcomes || [],
+                        isAIReco: false
+                    });
+                    existingTitles.push(String(course.title || '').toLowerCase());
                 }
             }
         }
+        
+        finalCourses = finalCourses.filter((course, index, self) => 
+            index === self.findIndex(c => c.title.toLowerCase() === course.title.toLowerCase())
+        ).slice(0, 6);
 
-        console.log("Final recommendations:", finalCourses);
+        console.log("Final recommendations to be displayed:", finalCourses);
+        if (finalCourses.length === 0) { // Ensure we always return something
+            console.warn("No courses could be generated, returning absolute fallback.");
+            let fallback = JSON.parse(JSON.stringify(courseTemplates.programming.beginner));
+            return fallback.map(course => ({
+                 ...course, imageUrl: getRelevantImage(course.title, course.keyTopics || []), isAIReco: false
+            })).slice(0,6);
+        }
         return finalCourses;
 
     } catch (error) {
-        console.error("Error in generateCourseRecommendations:", error);
-        // Return some default courses instead of failing completely
-        return courseTemplates.programming.beginner.map(course => {
-            const templateCourse = { ...course };
-            templateCourse.imageUrl = getRelevantImage(
-                templateCourse.title,
-                templateCourse.keyTopics
-            );
-            return templateCourse;
-        });
+        console.error("Critical Error in generateCourseRecommendations:", error);
+        let fallback = JSON.parse(JSON.stringify(courseTemplates.programming.beginner));
+        return fallback.map(course => ({
+            ...course, imageUrl: getRelevantImage(course.title, course.keyTopics || []), isAIReco: false
+        })).slice(0,6);
     }
 }
 

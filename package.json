@@ -1,0 +1,13 @@
+{
+  "name": "skill-x-main",
+  "version": "1.0.0",
+  "description": "OpenRouter API integration for Simplexify",
+  "main": "openai-api.js",
+  "type": "module",
+  "scripts": {
+    "start": "node openai-api.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
