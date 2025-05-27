@@ -105,20 +105,63 @@ function initializeChatbotEventListeners() {
         messagesContainer.scrollTop = messagesContainer.scrollHeight; // Scroll to the bottom
     }
 
-    function getBotResponse(userInput) {
-        // Simulate API call delay and bot thinking
-        setTimeout(() => {
-            addMessageToChat('bot', 'Thinking...');
-            setTimeout(() => {
-                // Replace the thinking message with the actual response
-                const thinkingMessage = messagesContainer.querySelector('.chatbot-message.bot:last-child p');
-                if (thinkingMessage && thinkingMessage.textContent === 'Thinking...') {
-                    thinkingMessage.textContent = `Simplexify AI: "${userInput}" received. I'm still learning!`;
-                } else { // Fallback if 'Thinking...' was not found (e.g., user sent another message quickly)
-                    addMessageToChat('bot', `Simplexify AI: "${userInput}" received. I'm still learning!`);
-                }
-            }, 1500);
-        }, 700);
+    const OPENROUTER_API_KEY = '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';
+
+    async function getBotResponse(userInput) {
+        addMessageToChat('bot', 'Thinking...'); // Show thinking message immediately
+        const messagesContainer = document.getElementById('chatbot-messages');
+
+        console.log("[Chatbot Debug] OpenRouter API Key being used:", OPENROUTER_API_KEY);
+        const headers = {
+            'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+            'Content-Type': 'application/json'
+        };
+        console.log("[Chatbot Debug] Request Headers:", JSON.stringify(headers));
+
+        try {
+            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({
+                    model: 'openai/gpt-3.5-turbo', // Or your preferred model
+                    messages: [
+                        { role: 'system', content: 'You are a helpful assistant for Simplexify, an online learning platform. Be concise and friendly.' },
+                        { role: 'user', content: userInput }
+                    ]
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: response.statusText }));
+                console.error('OpenRouter API Error:', response.status, errorData);
+                updateLastBotMessage(`Sorry, I encountered an error: ${errorData.error ? errorData.error.message : errorData.message}. Please try again.`);
+                return;
+            }
+
+            const data = await response.json();
+            const botReply = data.choices[0]?.message?.content.trim();
+
+            if (botReply) {
+                updateLastBotMessage(botReply);
+            } else {
+                updateLastBotMessage("Sorry, I didn't get a response. Please try again.");
+            }
+
+        } catch (error) {
+            console.error('Failed to fetch from OpenRouter API:', error);
+            updateLastBotMessage('Sorry, I am having trouble connecting. Please check your internet connection or try again later.');
+        }
+    }
+
+    function updateLastBotMessage(newText) {
+        const messagesContainer = document.getElementById('chatbot-messages');
+        const thinkingMessage = messagesContainer.querySelector('.chatbot-message.bot:last-child p');
+        if (thinkingMessage && (thinkingMessage.textContent === 'Thinking...' || thinkingMessage.textContent.startsWith('Sorry,'))) {
+            thinkingMessage.textContent = newText;
+        } else {
+            addMessageToChat('bot', newText); // Fallback if 'Thinking...' was not found or already replaced
+        }
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
     // Optional: Add a small animation to the toggle button on load

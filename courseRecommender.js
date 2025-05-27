@@ -195,7 +195,7 @@ async function callOpenRouterAPI(userPreferences) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer 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', // Updated API Key
+                'Authorization': 'Bearer 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',
                 'HTTP-Referer': window.location.origin, // Optional: For OpenRouter to identify your site
                 'X-Title': 'Simplexify Course Recommender' // Optional: For OpenRouter to identify your app
             },
