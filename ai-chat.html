@@ -743,7 +743,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer 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`,
+                        'Authorization': `Bearer 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`,
                         'HTTP-Referer': 'https://simplexify.com',
                         'X-Title': 'Simplexify Learning Assistant'
                     },
@@ -769,7 +769,7 @@
                         url: 'https://openrouter.ai/api/v1/chat/completions',
                         model: 'openai/gpt-3.5-turbo',
                         headers: {
-                            'Authorization': 'Bearer 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'.substring(0, 15) + '...',
+                            'Authorization': 'Bearer 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'.substring(0, 15) + '...',
                             'HTTP-Referer': 'https://simplexify.com',
                             'X-Title': 'Simplexify Learning Assistant'
                         }
@@ -853,13 +853,53 @@
                 formattedText = formattedText.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
                 formattedText = formattedText.replace(/\*([^*]+)\*/g, '<em>$1</em>');
                 
-                // Convert lists
-                formattedText = formattedText.replace(/^\s*[\-\*]\s+(.+)$/gm, '<li>$1</li>');
-                formattedText = formattedText.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+                // First, handle both types of lists in a single pass
+                const lines = formattedText.split('\n');
+                let inList = false;
+                let listType = null;
+                let listItems = [];
+                const processedLines = [];
+
+                function closeList() {
+                    if (listItems.length > 0) {
+                        const listTag = listType === 'ol' ? 'ol' : 'ul';
+                        processedLines.push(`<${listTag}>${listItems.join('')}</${listTag}>`);
+                        listItems = [];
+                        inList = false;
+                        listType = null;
+                    }
+                }
+
+                for (let line of lines) {
+                    // Check for unordered list item
+                    const ulMatch = line.match(/^\s*[\-\*]\s+(.+)$/);
+                    // Check for ordered list item
+                    const olMatch = line.match(/^\s*(\d+)\.\s+(.+)$/);
+
+                    if (ulMatch) {
+                        if (inList && listType !== 'ul') {
+                            closeList();
+                        }
+                        listItems.push(`<li>${ulMatch[1]}</li>`);
+                        inList = true;
+                        listType = 'ul';
+                    } else if (olMatch) {
+                        if (inList && listType !== 'ol') {
+                            closeList();
+                        }
+                        listItems.push(`<li>${olMatch[2]}</li>`);
+                        inList = true;
+                        listType = 'ol';
+                    } else {
+                        closeList();
+                        processedLines.push(line);
+                    }
+                }
+                // Close any remaining open list
+                closeList();
                 
-                // Convert numbered lists
-                formattedText = formattedText.replace(/^\s*(\d+)\.\s+(.+)$/gm, '<li>$2</li>');
-                formattedText = formattedText.replace(/(<li>.*<\/li>)/s, '<ol>$1</ol>');
+                // Join the processed lines back together
+                formattedText = processedLines.join('\n');
                 
                 // Convert links
                 formattedText = formattedText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
